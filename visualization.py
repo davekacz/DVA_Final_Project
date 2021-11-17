@@ -11,9 +11,9 @@ import plotly.express as px
 import pandas as pd
 import json
 import numpy as np 
-
+import ipdb
 #Page rank and Random Walk Functions
-import util as Utility
+from util import Utility
 
 #set access token for mapbox
 px.set_mapbox_access_token('pk.eyJ1IjoiZGF2ZWthY3oiLCJhIjoiY2t2ZnEyNTVnNDNvNDJvcXBvdGpkd2V6OCJ9.KZLuPalXbe5r40WG13fcUg')
@@ -34,10 +34,10 @@ px.set_mapbox_access_token('pk.eyJ1IjoiZGF2ZWthY3oiLCJhIjoiY2t2ZnEyNTVnNDNvNDJvc
 app = dash.Dash(__name__)
 
 #read data on zone information - this will be removed, final version
-zone_df = pd.read_csv('data/zone_info.csv')
+# zone_df = pd.read_csv('data/zone_info.csv')
 
 #initialize our utility algorithms
-util = Utility.Utility(taxi = 'yellow', day_night = 'night', 
+util = Utility(taxi = 'yellow', day_night = 'night', 
                  day_of_week = 'weekday', duration = 8)
 
 #pull in zone names and borough location - other data we want to show could be added here 
@@ -45,7 +45,8 @@ zone_names = pd.read_csv('data/TaxiZone_Name_Borough.csv')
 
 #read in geojson
 taxi_geo = json.load(open('data/taxi_geo_small.json'))
-
+centers = pd.read_csv('data/centers.csv')
+centers.set_index('zone_id', inplace = True)
 #create selection dataframe this was going to be used to show selection, all 0's, 1 for the selection
 #Don't think it's going to work like this though
 '''location_id = [x for x in range(264)]
@@ -168,7 +169,8 @@ app.layout = html.Div(children=[
     dcc.Graph(
         id='choropleth',
         #figure = fig,
-        style={'width': '75%', 'display': 'inline-block'}
+        style={'width': '75%', 'display': 'inline-block'},
+        config = {'doubleClick': 'reset+autosize'} 
     ),
 
     #Show what's currently clicked
@@ -226,10 +228,12 @@ def update_choropleth_dropdowns(score_value):
     Input('time_slider', 'value'),
     Input('year_select', 'value'))
 
-def display_selected_data(selectedpoints, month_selection, day_selection, time_selection, time_slider, year_selection):
+def display_selected_data(selectedpoints, month_selection, day_selection,
+                          time_selection, time_slider, year_selection):
 
     #supposed to show how and why the callback was called - can't figure out
     #can maybe just use if statement below instead?
+    ipdb.set_trace()
     ctx = dash.callback_context
     changed_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
@@ -245,14 +249,14 @@ def display_selected_data(selectedpoints, month_selection, day_selection, time_s
     util.duration = time_slider
 
     #Checks if there are any selected points, returns zoomed out map if None
-    if selectedpoints is None:
+    if not selectedpoints:
         #If no zones are selected, return unzoomed overall map
 
         #run pagerank algorithm:
         year = year_selection
         month = month_selection
         edges, trips = util.load_data(month, year)
-        P, node_ids, idx = util.pagerank(edges, trips, 265)
+        P, node_ids, idx = util.pagerank(edges, trips, 10)
 
         #create score dictionary
         score_dict = dict(zip(node_ids, util.pickupscore_))
@@ -294,49 +298,57 @@ def display_selected_data(selectedpoints, month_selection, day_selection, time_s
 
     #If a point is selected... returns zoomed in - need table of zone centers to zoom to
     else:
-        location = json.dumps(selectedpoints['points'][0]['location'])
+        location = int(json.dumps(selectedpoints['points'][0]['location']))
 
         #update the selection DF for selection visualization - don't think this is goign to work
         '''select_df = pd.DataFrame(location_id, columns=['location_id'])
         select_df['score'] = 0
         select_df['score'].iloc[int(location)] = 1'''
-
+        neighbors = util.top_neighbor(location, month_selection, 
+                                      year_selection, time_slider)
+        base_amount = neighbors.loc[location, 'expected_total_amount']
+        
+        neighbors['pct_extra'] = (100 * (neighbors['expected_total_amount'] 
+                                         - base_amount)/base_amount)
+        neighbors = pd.merge(zone_names, neighbors, how = 'left',
+                             left_on = 'LocationID', right_index = True)
+        # neighbors.fillna(0, inplace=  True)
         #if a zone is selected, zoom in, show zone dependent mapbox
-        fig = px.choropleth_mapbox(zone_df, geojson=taxi_geo, color='first',
-                locations="zone", featureidkey="properties.locationid",
-                center={"lat": 40.6908, "lon": -74.0060},
-                color_continuous_scale="greens",
+        fig = px.choropleth_mapbox(neighbors, geojson=taxi_geo, color='pct_extra',
+                locations="LocationID", featureidkey="properties.locationid",
+                center={"lat": centers.loc[location, 'avg_lat'], 
+                        "lon": centers.loc[location, 'avg_long']},
+                color_continuous_scale="rainbow",
                 opacity = .5,
                 mapbox_style="streets", 
                 zoom=11.5,
                 height = 800,
-                hover_name = 'name',
-                hover_data=['borough'],
+                hover_name = 'zone',
+                hover_data=['borough', 'avg_trip_time', 'expected_total_amount'],
                 )
 
         #Adds pitch to camera instead of top down view
         fig.update_mapboxes(pitch=45)
-
+        # ipdb.set_trace()
         #Adds title and removes the choropleth scale on the right.
-        fig.update_layout(title = 'NYC Cabbie Director', coloraxis_showscale=False)
-
-        #Can print to console from here to debug!  
-        print(zone_df.iloc[int(location)]['zone'])
+        #fig.update_layout(title = 'NYC Cabbie Director', coloraxis_showscale=False)
 
         #Add Scatter Plot to render the Best Location to pickup
-        #symbols would be cool, but work differently, don't render if close unless you zoom in.  
-        fig.add_scattermapbox(lat = [40.6978],
-                lon = [-74.0000],
-                mode = 'markers+text',
-                text = ['Best Location'],  #a list of strings, one  for each geographical position  (lon, lat)              
-                below='', 
-                marker_size=15, marker_color='rgb(0,0,255)', 
-                textposition = "bottom center", textfont=dict(size=16, color='black'),
-                name = 'Best Location')
+        #symbols would be cool, but work differently, don't render if close unless you zoom in.
+        if neighbors['pct_extra'].idxmax():
+            best_zone = neighbors.loc[neighbors['pct_extra'].idxmax(), 'LocationID']
+            fig.add_scattermapbox(lat = [centers.loc[best_zone, 'avg_lat']],
+                    lon = [centers.loc[best_zone, 'avg_long']],
+                    mode = 'markers+text',
+                    text = ['Best Location'],  #a list of strings, one  for each geographical position  (lon, lat)              
+                    below='', 
+                    marker_size=15, marker_color='rgb(0,0,255)', 
+                    textposition = "bottom center", textfont=dict(size=16, color='black'),
+                    name = 'Best Location')
 
         #Add Scatter Plot to render the Current location 
-        fig.add_scattermapbox(lat = [40.6908],
-                lon = [-74.0060],
+        fig.add_scattermapbox(lat = [centers.loc[location, 'avg_lat']],
+                lon = [centers.loc[location, 'avg_long']],
                 mode = 'markers+text',
                 text = ['Current Location'],  #a list of strings, one  for each geographical position  (lon, lat)              
                 below='',                 
@@ -345,10 +357,10 @@ def display_selected_data(selectedpoints, month_selection, day_selection, time_s
                 name = 'Current Location')
 
         #Remove legend on the right - selections do weird things
-        fig.update(layout_showlegend=False)
+        #fig.update(layout_showlegend=False)
 
         #Disabled allowing anymore selections after the first one.  Behaviour is a little odd and unexpected.  
-        fig.update_layout(clickmode='event+select', margin={"r":0,"t":0,"l":0,"b":0})
+        #fig.update_layout(clickmode='event+select', margin={"r":0,"t":0,"l":0,"b":0})
 
         #Return zone selected, and the mapbox
         return location, fig, time_slider
