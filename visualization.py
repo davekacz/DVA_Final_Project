@@ -41,7 +41,7 @@ util = Utility.Utility(taxi = 'yellow', day_night = 'night',
                  day_of_week = 'weekday', duration = 8)
 
 #pull in zone names and borough location - other data we want to show could be added here 
-zone_names = pd.read_csv('data\TaxiZone_Name_Borough.csv')
+zone_names = pd.read_csv('data/TaxiZone_Name_Borough.csv')
 
 #read in geojson
 taxi_geo = json.load(open('data/taxi_geo_small.json'))
@@ -231,7 +231,9 @@ def display_selected_data(selectedpoints, month_selection, day_selection, time_s
     #supposed to show how and why the callback was called - can't figure out
     #can maybe just use if statement below instead?
     ctx = dash.callback_context
+    changed_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
+    print(changed_id)
     # ------------
     #Should call Karns algorith here, pass it all the inputs here,
     #output our zone_df 
@@ -356,4 +358,8 @@ def display_selected_data(selectedpoints, month_selection, day_selection, time_s
 
 
 if __name__ == '__main__':
+    #Use this line if running locally
     app.run_server(debug=True)
+
+    #Uncomment this line if hosting on the web, and comment out above line
+    #app.run_server(debug=True, host='0.0.0.0', port='80')
