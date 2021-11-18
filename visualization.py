@@ -170,7 +170,7 @@ app.layout = html.Div(children=[
         id='choropleth',
         figure = {},
         style={'width': '75%', 'display': 'inline-block'},
-        config = {'doubleClick': 'reset'} 
+        config = {'doubleClick': 'reset+autosize'} 
     ),
 
     #Show what's currently clicked
@@ -230,6 +230,8 @@ def display_selected_data(selectedpoints, month_selection, day_selection,
 
     #Checks if there are any selected points, returns zoomed out map if None
         if not selectedpoints:
+            location = 'NULL'
+            
             #If no zones are selected, return unzoomed overall map
 
             #run pagerank algorithm:
@@ -271,13 +273,17 @@ def display_selected_data(selectedpoints, month_selection, day_selection,
             select_df['score'] = 0
             select_df['score'].iloc[int(location)] = 1'''
             neighbors = util.top_neighbor(location, month_selection, 
-                                        year_selection, time_slider)
+                                        year_selection, time_slider, time_slider)
             base_amount = neighbors.loc[location, 'expected_total_amount']
             
             neighbors['pct_extra'] = (100 * (neighbors['expected_total_amount'] 
-                                            - base_amount)/base_amount)
-            neighbors = pd.merge(zone_names, neighbors, how = 'left',
-                                left_on = 'LocationID', right_index = True)
+                                            - base_amount)/base_amount)         
+            
+
+            neighbors = pd.merge(zone_names,neighbors,how = 'left',
+                                left_on='LocationID', right_on='Zone_ID', right_index = True)
+            
+            neighbors.replace(np.nan, 0, inplace=True)
         #fig = {} #attempt to reset figure - trying to remove current/best points
 
             df = neighbors
@@ -285,7 +291,7 @@ def display_selected_data(selectedpoints, month_selection, day_selection,
             color_data = 'pct_extra'
             location_ID = "LocationID"
             fkey = "properties.locationid"
-            center_data ={"lat": centers.loc[location, 'avg_lat'],"lon": centers.loc[location, 'avg_long']}
+            center_data = {"lat": centers.loc[location, 'avg_lat'],"lon": centers.loc[location, 'avg_long']}
             color_scale = "rainbow"
             zoom_level = 11.5
             hover_dataset = ['borough', 'avg_trip_time', 'expected_total_amount']            
@@ -313,10 +319,12 @@ def display_selected_data(selectedpoints, month_selection, day_selection,
         fig.update_layout(clickmode='event+select', title = 'NYC Cabbie Director', coloraxis_showscale=False,
         margin={"r":0,"t":0,"l":0,"b":0})
 
+        #print (neighbors)
+
         print('No Zone Selected')
 
         #Return NA for no zone selected, and the mapbox, and the time selected
-        return 'NA', fig, time_slider
+        return location, fig, time_slider
 
         #If a point is selected... returns zoomed in - need table of zone centers to zoom to
  
