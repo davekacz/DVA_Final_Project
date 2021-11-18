@@ -11,30 +11,20 @@ import plotly.express as px
 import pandas as pd
 import json
 import numpy as np 
+<<<<<<< Updated upstream
 import ipdb
+=======
+# import ipdb
+import plotly.io as pio
+>>>>>>> Stashed changes
 #Page rank and Random Walk Functions
 from util import Utility
 
 #set access token for mapbox
 px.set_mapbox_access_token('pk.eyJ1IjoiZGF2ZWthY3oiLCJhIjoiY2t2ZnEyNTVnNDNvNDJvcXBvdGpkd2V6OCJ9.KZLuPalXbe5r40WG13fcUg')
-# ---------------------------------
-#               TO DO
-# 1 - Need a function from Karns work - 
-# Input: Zone Selected, 3 Values from Dropdowns, time left slider
-# Output: pd.DataFrame with all zone id's - ranks for choropleth - 
-# any other data we want to show - avg fare, avg time to travel
-# borough, etc...  
-#
-# 2 - Need centers of each zone csv
-#
-# 3 - Need to highlight the selection in some way.  Outline - or maybe just red dot in center?  
-#
-#-------------------------------------
+
 
 app = dash.Dash(__name__)
-
-#read data on zone information - this will be removed, final version
-# zone_df = pd.read_csv('data/zone_info.csv')
 
 #initialize our utility algorithms
 util = Utility(taxi = 'yellow', day_night = 'night', 
@@ -43,31 +33,10 @@ util = Utility(taxi = 'yellow', day_night = 'night',
 #pull in zone names and borough location - other data we want to show could be added here 
 zone_names = pd.read_csv('data/TaxiZone_Name_Borough.csv')
 
-#read in geojson
+#read in geojson and centers
 taxi_geo = json.load(open('data/taxi_geo_small.json'))
 centers = pd.read_csv('data/centers.csv')
 centers.set_index('zone_id', inplace = True)
-#create selection dataframe this was going to be used to show selection, all 0's, 1 for the selection
-#Don't think it's going to work like this though
-'''location_id = [x for x in range(264)]
-select_df = pd.DataFrame(location_id, columns=['location_id'])
-select_df['score'] = 0'''
-
-#The original figure - Leftover from original code - think this should go and be updated using callback
-#when the dropdowns initialize and cause the callback function to be triggered.   
-'''fig = px.choropleth_mapbox(zone_df, geojson=taxi_geo, color='first',
-                        locations="zone", featureidkey="properties.locationid",
-                        center={"lat": 40.7128, "lon": -74.0060},
-                        color_continuous_scale="greens",
-                        opacity = .35,
-                        mapbox_style="open-street-map", 
-                        zoom=10,
-                        height = 800,
-                        hover_name = 'name',
-                        hover_data=['borough']
-                        )
-
-fig.update_layout(clickmode='event+select')'''
 
 #Create the website layout
 app.layout = html.Div(children=[
@@ -168,7 +137,11 @@ app.layout = html.Div(children=[
     #Inset Chloropeth Graph
     dcc.Graph(
         id='choropleth',
+<<<<<<< Updated upstream
         #figure = fig,
+=======
+        # figure = {},
+>>>>>>> Stashed changes
         style={'width': '75%', 'display': 'inline-block'},
         config = {'doubleClick': 'reset+autosize'} 
     ),
@@ -187,6 +160,7 @@ app.layout = html.Div(children=[
     html.H5(id='slider-output-container', style={'display': 'inline-block'})
 ])
 
+<<<<<<< Updated upstream
 #Old callback - can't have two callbacks updating the same figure - 
 #in our case our choropleth mapbox 
 '''@app.callback(
@@ -216,6 +190,8 @@ def update_choropleth_dropdowns(score_value):
 
 #Callback function - Updates if zone selected in choropleth, or one of the drodowns
 #month_select, day_type_select, time_select
+=======
+>>>>>>> Stashed changes
 
 @app.callback(
     Output('selected-data', 'children'),
@@ -227,6 +203,7 @@ def update_choropleth_dropdowns(score_value):
     Input('time_select', 'value'),
     Input('time_slider', 'value'),
     Input('year_select', 'value'))
+<<<<<<< Updated upstream
 
 def display_selected_data(selectedpoints, month_selection, day_selection,
                           time_selection, time_slider, year_selection):
@@ -257,6 +234,35 @@ def display_selected_data(selectedpoints, month_selection, day_selection,
         month = month_selection
         edges, trips = util.load_data(month, year)
         P, node_ids, idx = util.pagerank(edges, trips, 10)
+=======
+def display_selected_data(selectedpoints, month_selection, day_selection,
+                          time_selection, time_slider, year_selection):
+
+        #print ('selectedpoints:', selectedpoints , ': points')
+
+        #supposed to show how and why the callback was called - can't figure out
+        #can maybe just use if statement below instead?
+        # ipdb.set_trace()
+        ctx = dash.callback_context
+        changed_id = ctx.triggered[0]['prop_id'].split('.')[0]
+
+        print(changed_id)
+
+        #update utility with relevant information: 
+        util.day_of_week = day_selection
+        util.day_night = time_selection
+        util.duration = time_slider
+        year = year_selection
+        month = month_selection
+    #Checks if there are any selected points, returns zoomed out map if None
+        if (not selectedpoints) or (not selectedpoints['points']):
+            location = 'NULL'
+            print('No Zone Selected')
+            #If no zones are selected, return unzoomed overall map
+            #run pagerank algorithm:
+            edges, trips = util.load_data(month, year)
+            P, node_ids, idx = util.pagerank(edges, trips, 10)
+>>>>>>> Stashed changes
 
         #create score dictionary
         score_dict = dict(zip(node_ids, util.pickupscore_))
@@ -264,6 +270,7 @@ def display_selected_data(selectedpoints, month_selection, day_selection,
         #create dataframe for choropleth map
         #Code to create choro_df for visualization
 
+<<<<<<< Updated upstream
         zones = [x + 1 for x in range(265)]
 
         choro_df = pd.DataFrame(zones, columns = ['Zone_ID'])
@@ -279,6 +286,64 @@ def display_selected_data(selectedpoints, month_selection, day_selection,
                         locations="Zone_ID", featureidkey="properties.locationid",
                         center={"lat": 40.6908, "lon": -74.0060},
                         color_continuous_scale="greens",
+=======
+            zones = [x + 1 for x in range(263)]
+
+            choro_df = pd.DataFrame(zones, columns = ['Zone_ID'])
+            choro_df['pickup_score'] = choro_df['Zone_ID'].map(score_dict)
+            choro_df.replace(np.nan, 0, inplace=True)
+    
+            choro_df = pd.merge(choro_df, zone_names, left_on='Zone_ID', right_on='LocationID')
+            choro_df.drop(columns='LocationID', inplace=True)
+            
+            df = choro_df
+            color_data = 'pickup_score'
+            location_ID = "Zone_ID"
+            fkey = "properties.locationid"
+            center_data = {"lat": 40.6908, "lon": -74.0060}
+            color_scale = "spectral"
+            zoom_level = 10
+            hover_dataset = ['borough']
+            color_midpoint = np.mean(choro_df['pickup_score'].values)
+            range_color = [choro_df['pickup_score'].min(), 
+                           choro_df['pickup_score'].max()]
+
+        else:
+            location = int(json.dumps(selectedpoints['points'][0]['location']))
+            neighbors = util.top_neighbor(location, month, year,
+                                          time_slider, time_slider)
+            base_amount = neighbors.loc[location, 'expected_total_amount']
+            
+            neighbors['pct_extra'] = (100 * (neighbors['expected_total_amount'] 
+                                            - base_amount)/base_amount)         
+            neighbors = pd.merge(zone_names,neighbors,how = 'left',
+                                left_on='LocationID', right_index = True)
+            
+            #neighbors.replace(np.nan, 0, inplace=True)
+            df = neighbors
+            color_data = 'pct_extra'
+            location_ID = "LocationID"
+            fkey = "properties.locationid"
+            center_data = {"lat": centers.loc[location, 'avg_lat'],
+                           "lon": centers.loc[location, 'avg_long']}
+            color_scale = "spectral"
+            zoom_level = 11.5
+            color_midpoint = 0
+            range_color = [neighbors['pct_extra'].min(), 
+                           neighbors['pct_extra'].max()]
+            hover_dataset = ['borough', 'avg_trip_time', 'expected_total_amount']
+            
+        fig = px.choropleth_mapbox(
+                        df, 
+                        geojson=taxi_geo, 
+                        color=color_data,
+                        locations=location_ID, 
+                        featureidkey=fkey,
+                        center=center_data,
+                        color_continuous_scale=color_scale,
+                        range_color = range_color,
+                        color_continuous_midpoint  = color_midpoint,
+>>>>>>> Stashed changes
                         opacity = .5,
                         mapbox_style="streets", 
                         zoom=10,
@@ -288,6 +353,7 @@ def display_selected_data(selectedpoints, month_selection, day_selection,
                         )
 
         fig.update_mapboxes(pitch=45)
+<<<<<<< Updated upstream
         fig.update_layout(clickmode='event+select', title = 'NYC Cabbie Director', coloraxis_showscale=False,
         margin={"r":0,"t":0,"l":0,"b":0})
 
@@ -336,6 +402,16 @@ def display_selected_data(selectedpoints, month_selection, day_selection,
         #Add Scatter Plot to render the Best Location to pickup
         #symbols would be cool, but work differently, don't render if close unless you zoom in.
         if neighbors['pct_extra'].idxmax():
+=======
+        fig.update_layout(clickmode='event+select', 
+                          title = 'NYC Cabbie Director', 
+                          coloraxis_showscale=True,
+                          margin={"r":0,"t":0,"l":0,"b":0})
+
+        #Add Scatter Plot to render the Best Location to pickup
+        #symbols would be cool, but work differently, don't render if close unless you zoom in.
+        if (location != 'NULL') and neighbors['pct_extra'].idxmax():
+>>>>>>> Stashed changes
             best_zone = neighbors.loc[neighbors['pct_extra'].idxmax(), 'LocationID']
             fig.add_scattermapbox(lat = [centers.loc[best_zone, 'avg_lat']],
                     lon = [centers.loc[best_zone, 'avg_long']],
@@ -347,6 +423,7 @@ def display_selected_data(selectedpoints, month_selection, day_selection,
                     name = 'Best Location')
 
         #Add Scatter Plot to render the Current location 
+<<<<<<< Updated upstream
         fig.add_scattermapbox(lat = [centers.loc[location, 'avg_lat']],
                 lon = [centers.loc[location, 'avg_long']],
                 mode = 'markers+text',
@@ -368,6 +445,20 @@ def display_selected_data(selectedpoints, month_selection, day_selection,
 
 
 
+=======
+        if location != 'NULL':
+            fig.add_scattermapbox(lat = [centers.loc[location, 'avg_lat']],
+                    lon = [centers.loc[location, 'avg_long']],
+                    mode = 'markers+text',
+                    text = ['Current Location'],  #a list of strings, one  for each geographical position  (lon, lat)              
+                    below='',                 
+                    marker_size=15, marker_color='rgb(235, 0, 100)',
+                    textposition = "bottom center", textfont=dict(size=16, color='black'),
+                    name = 'Current Location')
+        # ipdb.set_trace()
+        return location, fig, time_slider
+
+>>>>>>> Stashed changes
 
 if __name__ == '__main__':
     #Use this line if running locally
