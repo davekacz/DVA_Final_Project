@@ -11,7 +11,7 @@ import plotly.express as px
 import pandas as pd
 import json
 import numpy as np 
-import ipdb
+#import ipdb
 #Page rank and Random Walk Functions
 from util import Utility
 
@@ -168,9 +168,9 @@ app.layout = html.Div(children=[
     #Inset Chloropeth Graph
     dcc.Graph(
         id='choropleth',
-        #figure = fig,
+        figure = {},
         style={'width': '75%', 'display': 'inline-block'},
-        config = {'doubleClick': 'reset+autosize'} 
+        config = {'doubleClick': 'reset'} 
     ),
 
     #Show what's currently clicked
@@ -189,30 +189,7 @@ app.layout = html.Div(children=[
 
 #Old callback - can't have two callbacks updating the same figure - 
 #in our case our choropleth mapbox 
-'''@app.callback(
-    Output('choropleth', 'figure'),
-    Input('month_select', 'value')
-)
 
-#takes arguments in order from the callback function, in this case the month_select value
-
-def update_choropleth_dropdowns(score_value):
-    #returns an updated figure
-    fig = px.choropleth_mapbox(zone_df, geojson=taxi_geo, color=score_value,
-                           locations="zone", featureidkey="properties.locationid",
-                           center={"lat": 40.7128, "lon": -74.0060},
-                           color_continuous_scale="greens",
-                           opacity = .35,
-                           mapbox_style="open-street-map", 
-                           zoom=10,
-                           height = 800,
-                           hover_name = 'name',
-                           hover_data=['borough']
-                           )
-
-    fig.update_layout(clickmode='event+select')
-
-    return fig'''
 
 #Callback function - Updates if zone selected in choropleth, or one of the drodowns
 #month_select, day_type_select, time_select
@@ -228,63 +205,108 @@ def update_choropleth_dropdowns(score_value):
     Input('time_slider', 'value'),
     Input('year_select', 'value'))
 
+
 def display_selected_data(selectedpoints, month_selection, day_selection,
                           time_selection, time_slider, year_selection):
 
-    #supposed to show how and why the callback was called - can't figure out
-    #can maybe just use if statement below instead?
-    ipdb.set_trace()
-    ctx = dash.callback_context
-    changed_id = ctx.triggered[0]['prop_id'].split('.')[0]
+        #print ('selectedpoints:', selectedpoints , ': points')
 
-    print(changed_id)
-    # ------------
-    #Should call Karns algorith here, pass it all the inputs here,
-    #output our zone_df 
-    # ------------
+        #supposed to show how and why the callback was called - can't figure out
+        #can maybe just use if statement below instead?
+        #ipdb.set_trace()
+        ctx = dash.callback_context
+        changed_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
-    #update utility with relevant information: 
-    util.day_of_week = day_selection
-    util.day_night = time_selection
-    util.duration = time_slider
+        print(changed_id)
+        # ------------
+        #Should call Karns algorith here, pass it all the inputs here,
+        #output our zone_df 
+        # ------------
+
+        #update utility with relevant information: 
+        util.day_of_week = day_selection
+        util.day_night = time_selection
+        util.duration = time_slider
 
     #Checks if there are any selected points, returns zoomed out map if None
-    if not selectedpoints:
-        #If no zones are selected, return unzoomed overall map
+        if not selectedpoints:
+            #If no zones are selected, return unzoomed overall map
 
-        #run pagerank algorithm:
-        year = year_selection
-        month = month_selection
-        edges, trips = util.load_data(month, year)
-        P, node_ids, idx = util.pagerank(edges, trips, 10)
+            #run pagerank algorithm:
+            year = year_selection
+            month = month_selection
+            edges, trips = util.load_data(month, year)
+            P, node_ids, idx = util.pagerank(edges, trips, 10)
 
-        #create score dictionary
-        score_dict = dict(zip(node_ids, util.pickupscore_))
+            #create score dictionary
+            score_dict = dict(zip(node_ids, util.pickupscore_))
 
-        #create dataframe for choropleth map
-        #Code to create choro_df for visualization
+            #create dataframe for choropleth map
+            #Code to create choro_df for visualization
 
-        zones = [x + 1 for x in range(265)]
+            zones = [x + 1 for x in range(265)]
 
-        choro_df = pd.DataFrame(zones, columns = ['Zone_ID'])
-        choro_df['pickup_score'] = choro_df['Zone_ID'].map(score_dict)
-        choro_df.replace(np.nan, 0, inplace=True)
- 
-        choro_df = pd.merge(choro_df, zone_names, left_on='Zone_ID', right_on='LocationID')
-        choro_df.drop(columns='LocationID', inplace=True)
+            choro_df = pd.DataFrame(zones, columns = ['Zone_ID'])
+            choro_df['pickup_score'] = choro_df['Zone_ID'].map(score_dict)
+            choro_df.replace(np.nan, 0, inplace=True)
+    
+            choro_df = pd.merge(choro_df, zone_names, left_on='Zone_ID', right_on='LocationID')
+            choro_df.drop(columns='LocationID', inplace=True)
+            
+            df = choro_df
+            geoj = taxi_geo
+            color_data = 'pickup_score'
+            location_ID = "Zone_ID"
+            fkey = "properties.locationid"
+            center_data = {"lat": 40.6908, "lon": -74.0060}
+            color_scale = "greens"
+            zoom_level = 10
+            hover_dataset = ['borough']
 
+        else:
+            location = int(json.dumps(selectedpoints['points'][0]['location']))
+
+            #update the selection DF for selection visualization - don't think this is goign to work
+            '''select_df = pd.DataFrame(location_id, columns=['location_id'])
+            select_df['score'] = 0
+            select_df['score'].iloc[int(location)] = 1'''
+            neighbors = util.top_neighbor(location, month_selection, 
+                                        year_selection, time_slider)
+            base_amount = neighbors.loc[location, 'expected_total_amount']
+            
+            neighbors['pct_extra'] = (100 * (neighbors['expected_total_amount'] 
+                                            - base_amount)/base_amount)
+            neighbors = pd.merge(zone_names, neighbors, how = 'left',
+                                left_on = 'LocationID', right_index = True)
         #fig = {} #attempt to reset figure - trying to remove current/best points
 
-        fig = px.choropleth_mapbox(choro_df, geojson=taxi_geo, color='pickup_score',
-                        locations="Zone_ID", featureidkey="properties.locationid",
-                        center={"lat": 40.6908, "lon": -74.0060},
-                        color_continuous_scale="greens",
+            df = neighbors
+            geoj = taxi_geo
+            color_data = 'pct_extra'
+            location_ID = "LocationID"
+            fkey = "properties.locationid"
+            center_data ={"lat": centers.loc[location, 'avg_lat'],"lon": centers.loc[location, 'avg_long']}
+            color_scale = "rainbow"
+            zoom_level = 11.5
+            hover_dataset = ['borough', 'avg_trip_time', 'expected_total_amount']            
+            
+  
+            
+        
+        fig = px.choropleth_mapbox(
+                        df, 
+                        geojson=geoj, 
+                        color=color_data,
+                        locations=location_ID, 
+                        featureidkey=fkey,
+                        center=center_data,
+                        color_continuous_scale=color_scale,
                         opacity = .5,
                         mapbox_style="streets", 
-                        zoom=10,
+                        zoom=zoom_level,
                         height = 800,
                         hover_name = 'zone',
-                        hover_data=['borough'],
+                        hover_data=hover_dataset,
                         )
 
         fig.update_mapboxes(pitch=45)
@@ -296,75 +318,8 @@ def display_selected_data(selectedpoints, month_selection, day_selection,
         #Return NA for no zone selected, and the mapbox, and the time selected
         return 'NA', fig, time_slider
 
-    #If a point is selected... returns zoomed in - need table of zone centers to zoom to
-    else:
-        location = int(json.dumps(selectedpoints['points'][0]['location']))
-
-        #update the selection DF for selection visualization - don't think this is goign to work
-        '''select_df = pd.DataFrame(location_id, columns=['location_id'])
-        select_df['score'] = 0
-        select_df['score'].iloc[int(location)] = 1'''
-        neighbors = util.top_neighbor(location, month_selection, 
-                                      year_selection, time_slider)
-        base_amount = neighbors.loc[location, 'expected_total_amount']
-        
-        neighbors['pct_extra'] = (100 * (neighbors['expected_total_amount'] 
-                                         - base_amount)/base_amount)
-        neighbors = pd.merge(zone_names, neighbors, how = 'left',
-                             left_on = 'LocationID', right_index = True)
-        # neighbors.fillna(0, inplace=  True)
-        #if a zone is selected, zoom in, show zone dependent mapbox
-        fig = px.choropleth_mapbox(neighbors, geojson=taxi_geo, color='pct_extra',
-                locations="LocationID", featureidkey="properties.locationid",
-                center={"lat": centers.loc[location, 'avg_lat'], 
-                        "lon": centers.loc[location, 'avg_long']},
-                color_continuous_scale="rainbow",
-                opacity = .5,
-                mapbox_style="streets", 
-                zoom=11.5,
-                height = 800,
-                hover_name = 'zone',
-                hover_data=['borough', 'avg_trip_time', 'expected_total_amount'],
-                )
-
-        #Adds pitch to camera instead of top down view
-        fig.update_mapboxes(pitch=45)
-        # ipdb.set_trace()
-        #Adds title and removes the choropleth scale on the right.
-        #fig.update_layout(title = 'NYC Cabbie Director', coloraxis_showscale=False)
-
-        #Add Scatter Plot to render the Best Location to pickup
-        #symbols would be cool, but work differently, don't render if close unless you zoom in.
-        if neighbors['pct_extra'].idxmax():
-            best_zone = neighbors.loc[neighbors['pct_extra'].idxmax(), 'LocationID']
-            fig.add_scattermapbox(lat = [centers.loc[best_zone, 'avg_lat']],
-                    lon = [centers.loc[best_zone, 'avg_long']],
-                    mode = 'markers+text',
-                    text = ['Best Location'],  #a list of strings, one  for each geographical position  (lon, lat)              
-                    below='', 
-                    marker_size=15, marker_color='rgb(0,0,255)', 
-                    textposition = "bottom center", textfont=dict(size=16, color='black'),
-                    name = 'Best Location')
-
-        #Add Scatter Plot to render the Current location 
-        fig.add_scattermapbox(lat = [centers.loc[location, 'avg_lat']],
-                lon = [centers.loc[location, 'avg_long']],
-                mode = 'markers+text',
-                text = ['Current Location'],  #a list of strings, one  for each geographical position  (lon, lat)              
-                below='',                 
-                marker_size=15, marker_color='rgb(235, 0, 100)',
-                textposition = "bottom center", textfont=dict(size=16, color='black'),
-                name = 'Current Location')
-
-        #Remove legend on the right - selections do weird things
-        #fig.update(layout_showlegend=False)
-
-        #Disabled allowing anymore selections after the first one.  Behaviour is a little odd and unexpected.  
-        #fig.update_layout(clickmode='event+select', margin={"r":0,"t":0,"l":0,"b":0})
-
-        #Return zone selected, and the mapbox
-        return location, fig, time_slider
-
+        #If a point is selected... returns zoomed in - need table of zone centers to zoom to
+ 
 
 
 
