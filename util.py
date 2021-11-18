@@ -140,7 +140,7 @@ class Utility:
                     edges['target'].isin(self.exclude_ids))
             edges = edges[~mask]
         
-        print('Initial number of rows in edge list -', len(edges))
+        # print('Initial number of rows in edge list -', len(edges))
         # only keep nodes which have greater than 1 outgoing edge
         for step in range(2):
             temp = edges[['source', 'value']].groupby('source', as_index= False).sum()
@@ -160,7 +160,7 @@ class Utility:
                     edges['target'].isin(set(edges['source'].values)))
             edges = edges[mask]
         
-        print('Final number of rows in edge list - ', len(edges))
+        # print('Final number of rows in edge list - ', len(edges))
         pickups = edges[['source', 'value']].groupby('source', as_index= False).sum()
         pickups.rename(columns = {'value':'total_value'}, inplace = True)
         # pickups = pickups[pickups['total_value']>0]
@@ -222,7 +222,7 @@ class Utility:
         self.pickupscore_ = pickupscore
         # Get the undirected adjacency matrix
         idx = np.argsort(-pickupscore)[:top]
-        print('Feasible number of nodes in the transition matrix - ', len(node_ids))
+        # print('Feasible number of nodes in the transition matrix - ', len(node_ids))
         return P, node_ids, idx
 #%% Function to simulate taxi path
     def random_walk(self, P, node_ids, trip_data, start = None):
