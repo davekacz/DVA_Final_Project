@@ -301,7 +301,7 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
             select_df['score'] = 0
             select_df['score'].iloc[int(location)] = 1'''
             neighbors = util.top_neighbor(location, month_selection, 
-                                        year_selection, time_slider, (int(time_slider_driving_duration)*15)/60)
+                                        year_selection, time_slider, transition_time = (int(time_slider_driving_duration)*15)/60)
             base_amount = neighbors.loc[location, 'expected_total_amount']
             
             neighbors['pct_extra'] = (100 * (neighbors['expected_total_amount'] 
