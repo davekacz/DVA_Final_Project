@@ -343,20 +343,23 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
                         hover_data=hover_dataset,
                         )
 
-        # #Add Scatter Plot to render the Best Location to pickup
-        # #symbols would be cool, but work differently, don't render if close unless you zoom in.  
-        # fig.add_scattermapbox(lat = [40.6978],
-        #         lon = [-74.0000],
-        #         mode = 'markers+text',
-        #         text = ['Best Location'],  #a list of strings, one  for each geographical position  (lon, lat)              
-        #         below='', 
-        #         marker_size=15, marker_color='rgb(0,0,255)', 
-        #         textposition = "bottom center", textfont=dict(size=16, color='black'),
-        #         name = 'Best Location')
-
+        #Add Scatter Plot to render the Best Location to pickup
+        #symbols would be cool, but work differently, don't render if close unless you zoom in.
+        
+        # if neighbors['pct_extra'].idxmax():
+        #     best_zone = neighbors.loc[neighbors['pct_extra'].idxmax(), 'LocationID']
+        #     fig.add_scattermapbox(lat = [centers.loc[best_zone, 'avg_lat']],
+        #             lon = [centers.loc[best_zone, 'avg_long']],
+        #             mode = 'markers+text',
+        #             text = ['Best Location'],  #a list of strings, one  for each geographical position  (lon, lat)              
+        #             below='', 
+        #             marker_size=15, marker_color='rgb(0,0,255)', 
+        #             textposition = "bottom center", textfont=dict(size=16, color='black'),
+        #             name = 'Best Location')
+        
         #Add Scatter Plot to render the Current location 
-        # fig.add_scattermapbox(lat = [40.6908],
-        #         lon = [-74.0060],
+        # fig.add_scattermapbox(lat = [centers.loc[location, 'avg_lat']],
+        #         lon = [centers.loc[location, 'avg_long']],
         #         mode = 'markers+text',
         #         text = ['Current Location'],  #a list of strings, one  for each geographical position  (lon, lat)              
         #         below='',                 
