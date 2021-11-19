@@ -324,7 +324,8 @@ class Utility:
             if zone in node_ids:
                 self.duration = time_remaining - neighbors.loc[zone, 'avg_trip_time']
                 total_amount = []
-                for experiment in range(50):
+                np.random.seed(42)
+                for experiment in range(100):
                     try:
                         total_amount.append(self.random_walk(P, node_ids, trips, zone))
                     except:
@@ -334,22 +335,22 @@ class Utility:
         return neighbors        
         
 #%% Plot the distributions from randonwalk simulations
-    def dist_plot(self, data):
-        '''
-        Parameters
-        ----------
-        data : df containing the columns to be plotted 
+    # def dist_plot(self, data):
+    #     '''
+    #     Parameters
+    #     ----------
+    #     data : df containing the columns to be plotted 
     
-        Returns
-        -------
-        fig, ax
+    #     Returns
+    #     -------
+    #     fig, ax
     
-        '''
-        fig, ax = plt.subplots()
-        for col in data.columns:
-            sns.kdeplot(data[col], fill= True, ax = ax, label = col, legend =True)
-        ax.set_xlabel('total amount')
-        return fig, ax
+    #     '''
+    #     fig, ax = plt.subplots()
+    #     for col in data.columns:
+    #         sns.kdeplot(data[col], fill= True, ax = ax, label = col, legend =True)
+    #     ax.set_xlabel('total amount')
+    #     return fig, ax
 #%% eigendecomposition of the normalized graph Laplacian
 class graph_embedding:
     def __init__(self, k = 2):
