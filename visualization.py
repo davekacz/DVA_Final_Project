@@ -136,42 +136,59 @@ app.layout = html.Div(children=[
     ], style={'width': '15%', 'display': 'inline-block'}),
 
 
-    #Text above slider bar
+    #Text above slider bar1
     html.H4(children='''Select how many hours are left in your day:'''),
 
     #slider bar to select how many hours are left in the day
     html.Div([
         dcc.Slider(
-        id='time_slider',
-        min = 1,
-        max = 8,
-        step = 1,
-        marks={
-        1: '1',
-        2: '2',
-        3: '3',
-        4: '4',
-        5: '5',
-        6: '6',
-        7: '7',
-        8: '8',
+            id='time_slider',
+            min = 1,
+            max = 8,
+            step = 1,
+            marks={
+            1: '1',
+            2: '2',
+            3: '3',
+            4: '4',
+            5: '5',
+            6: '6',
+            7: '7',
+            8: '8',
 
-    },
-        value= 8 #defaults to the first option
+            },
+            value= 8 #defaults to the first option
         ),
-
-    ], style={'width': '60%'}),
+        ], 
+        style={'width': '60%'}
+    ),
+    
+    #Text above slider bar2
+    html.H4(children='''Select how many minutes you want to drive to your pickup zone:'''),
+    
+    #slider bar to select how many hours are left in the day
+    html.Div([
+        dcc.Slider(
+            id='time_slider_driving_duration',
+            min = 0,
+            max = 4,
+            step = None,            
+            marks={
+            0: '0',
+            1: '15',
+            2: '30',
+            3: '45',
+            4: '60'
+            },
+            value= 1 #defaults to the first option
+        ),
+        ], 
+        style={'width': '15%'}
+    ),    
     
     #Text above slider bar
     html.H4(children='''Select the zone you are currently in, double click another zone to reset your selection:'''),
 
-    #Inset Chloropeth Graph
-    dcc.Graph(
-        id='choropleth',
-        figure = {},
-        style={'width': '75%', 'display': 'inline-block'},
-        config = {'doubleClick': 'reset+autosize'} 
-    ),
 
     #Show what's currently clicked
     html.Div([
@@ -183,8 +200,17 @@ app.layout = html.Div(children=[
             #The portion that actually shows the selection
             html.Div(id='selected-data')
         ]),
-    html.H5(children='Hours left in your day: ', style={'display': 'inline-block'}),
-    html.H5(id='slider-output-container', style={'display': 'inline-block'})
+    
+    html.H5(children='Driving hours: ', style={'display': 'inline-block'}),
+    html.H5(id='slider-output-container', style={'display': 'inline-block'}),
+    
+    #Inset Chloropeth Graph
+    dcc.Graph(
+        id='choropleth',
+        figure = {},
+        style={'width': '75%', 'display': 'inline-block'},
+        config = {'doubleClick': 'reset+autosize'} 
+    )   
 ])
 
 #Old callback - can't have two callbacks updating the same figure - 
@@ -195,19 +221,21 @@ app.layout = html.Div(children=[
 #month_select, day_type_select, time_select
 
 @app.callback(
-    Output('selected-data', 'children'),
+    [Output('selected-data', 'children'),
     Output('choropleth', 'figure'),
-    Output('slider-output-container', 'children'),
-    Input('choropleth', 'selectedData'),    
+    Output('slider-output-container', 'children')],
+    [Input('choropleth', 'selectedData'),    
     Input('month_select', 'value'),
+    Input('year_select', 'value'),
     Input('day_type_select', 'value'),
     Input('time_select', 'value'),
     Input('time_slider', 'value'),
-    Input('year_select', 'value'))
+    Input('time_slider_driving_duration', 'value')]
+)
 
 
-def display_selected_data(selectedpoints, month_selection, day_selection,
-                          time_selection, time_slider, year_selection):
+def display_selected_data(selectedpoints, month_selection,year_selection, day_selection,
+                          time_selection, time_slider,time_slider_driving_duration ):
 
         #print ('selectedpoints:', selectedpoints , ': points')
 
@@ -216,8 +244,8 @@ def display_selected_data(selectedpoints, month_selection, day_selection,
         #ipdb.set_trace()
         ctx = dash.callback_context
         changed_id = ctx.triggered[0]['prop_id'].split('.')[0]
+        print (changed_id)
 
-        print(changed_id)
         # ------------
         #Should call Karns algorith here, pass it all the inputs here,
         #output our zone_df 
@@ -261,7 +289,7 @@ def display_selected_data(selectedpoints, month_selection, day_selection,
             location_ID = "Zone_ID"
             fkey = "properties.locationid"
             center_data = {"lat": 40.6908, "lon": -74.0060}
-            color_scale = "greens"
+            color_scale = "bluered"
             zoom_level = 10
             hover_dataset = ['borough']
 
@@ -273,7 +301,7 @@ def display_selected_data(selectedpoints, month_selection, day_selection,
             select_df['score'] = 0
             select_df['score'].iloc[int(location)] = 1'''
             neighbors = util.top_neighbor(location, month_selection, 
-                                        year_selection, time_slider, time_slider)
+                                        year_selection, time_slider, (int(time_slider_driving_duration)*15)/60)
             base_amount = neighbors.loc[location, 'expected_total_amount']
             
             neighbors['pct_extra'] = (100 * (neighbors['expected_total_amount'] 
@@ -288,11 +316,11 @@ def display_selected_data(selectedpoints, month_selection, day_selection,
 
             df = neighbors
             geoj = taxi_geo
-            color_data = 'pct_extra'
+            color_data = neighbors['pct_extra']
             location_ID = "LocationID"
             fkey = "properties.locationid"
             center_data = {"lat": centers.loc[location, 'avg_lat'],"lon": centers.loc[location, 'avg_long']}
-            color_scale = "rainbow"
+            color_scale = "bluered"
             zoom_level = 11.5
             hover_dataset = ['borough', 'avg_trip_time', 'expected_total_amount']            
             
@@ -315,16 +343,41 @@ def display_selected_data(selectedpoints, month_selection, day_selection,
                         hover_data=hover_dataset,
                         )
 
-        fig.update_mapboxes(pitch=45)
-        fig.update_layout(clickmode='event+select', title = 'NYC Cabbie Director', coloraxis_showscale=False,
+        # #Add Scatter Plot to render the Best Location to pickup
+        # #symbols would be cool, but work differently, don't render if close unless you zoom in.  
+        # fig.add_scattermapbox(lat = [40.6978],
+        #         lon = [-74.0000],
+        #         mode = 'markers+text',
+        #         text = ['Best Location'],  #a list of strings, one  for each geographical position  (lon, lat)              
+        #         below='', 
+        #         marker_size=15, marker_color='rgb(0,0,255)', 
+        #         textposition = "bottom center", textfont=dict(size=16, color='black'),
+        #         name = 'Best Location')
+
+        #Add Scatter Plot to render the Current location 
+        # fig.add_scattermapbox(lat = [40.6908],
+        #         lon = [-74.0060],
+        #         mode = 'markers+text',
+        #         text = ['Current Location'],  #a list of strings, one  for each geographical position  (lon, lat)              
+        #         below='',                 
+        #         marker_size=15, marker_color='rgb(235, 0, 100)',
+        #         textposition = "bottom center", textfont=dict(size=16, color='black'),
+        #         name = 'Current Location')
+
+        #fig.update_mapboxes(pitch=45)
+        fig.update_layout(clickmode='event+select', title = 'NYC Cabbie Director', coloraxis_showscale=True,
         margin={"r":0,"t":0,"l":0,"b":0})
+
+
+            
+   
 
         #print (neighbors)
 
         print('No Zone Selected')
 
         #Return NA for no zone selected, and the mapbox, and the time selected
-        return location, fig, time_slider
+        return location, fig, time_slider_driving_duration
 
         #If a point is selected... returns zoomed in - need table of zone centers to zoom to
  
