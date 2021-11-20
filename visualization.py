@@ -33,8 +33,8 @@ zone_names = pd.read_csv('data/TaxiZone_Name_Borough.csv')
 taxi_geo = json.load(open('data/taxi_geo_small.json'))
 centers = pd.read_csv('data/centers.csv')
 centers.set_index('zone_id', inplace = True)
-home_position = {"lat": 40.6908, "lon": -74.0060}
-home_zoom = 10
+home_view = {'center': {"lat": 40.6908, "lon": -74.0060},
+             'zoom': 10}
 #Create the website layout
 app.layout = html.Div(children=[
     html.H1(children='NYC Cabbie Director'), 
@@ -135,7 +135,7 @@ app.layout = html.Div(children=[
     html.Div([
         dcc.Slider(
             id='time_slider_driving_duration',
-            min = 0,
+            min = 1,
             max = 4,
             step = None,            
             marks={
@@ -175,7 +175,8 @@ app.layout = html.Div(children=[
         ]),
     html.H5(children='Hours left in your day: ', style={'display': 'inline-block'}),
     html.H5(id='slider-output-container', style={'display': 'inline-block'}),
-    dcc.Store(id = 'location')
+    dcc.Store(id = 'location'),
+    dcc.Store(id = 'lastzoom')
 ])
 
 @app.callback(
@@ -184,6 +185,7 @@ app.layout = html.Div(children=[
     Output('slider-output-container', 'children'),    
     Output('choropleth', 'selectedData'),
     Output('location', 'data'),
+    Output('lastzoom', 'data'),
     Input('choropleth', 'selectedData'),
     Input('choropleth', 'relayoutData'), 
     Input('month_select', 'value'),
@@ -193,69 +195,61 @@ app.layout = html.Div(children=[
     Input('year_select', 'value'),
     Input('time_slider_driving_duration', 'value'),
     Input('choropleth', 'figure'),
-    Input('location', 'data'))
+    Input('location', 'data'),
+    Input('lastzoom', 'data'))
 
 def display_selected_data(selectedpoints, relaydata,
                           month_selection, day_selection,
                           time_selection, time_slider, year_selection,
                           time_slider_driving_duration, figure,
-                          last_clicked):
+                          last_selection, last_zoom):
         # print('clickedpoint', clickedpoint)
         print ('selectedpoints:', selectedpoints)
         print ('relaypoints:', relaydata)
+        util.day_of_week = day_selection
+        util.day_night = time_selection
+        util.duration = time_slider
+        year = year_selection
+        month = month_selection
+        transition_time = (int(time_slider_driving_duration)*15)/60
         fig = figure
-        if last_clicked is None:
-            location = 'null'
+        if selectedpoints is not None:
+            location = selectedpoints['points'][0]['location'] 
         else:
-            location  = json.loads(last_clicked)
+            location = 'null'
+        current_selection = {'dow':day_selection,
+                             'day_night': time_selection,
+                             'duration':time_slider,
+                             'transition': transition_time,
+                             'year': year_selection,
+                             'month':month_selection,
+                             'location': location}
+        if last_selection is not None:
+            last_selection  = json.loads(last_selection)
+            
+        if current_selection == last_selection:
+            run_callback = False
+        else:
+            run_callback = True
+            last_selection = current_selection
+        
         # ipdb.set_trace()
+        if last_zoom is not None:
+            last_zoom  = json.loads(last_zoom)
+            
         if relaydata is not None:
             if ('mapbox.center' in relaydata):
-                if ((relaydata['mapbox.center'] == home_position) and 
-                    (relaydata['mapbox.zoom'] == home_zoom)):
+                current_zoom = {'center': relaydata['mapbox.center'],
+                                'zoom': relaydata['mapbox.zoom']}
+                if (current_zoom == home_view) and (last_zoom != home_view):
                     run_callback = True
                     selectedpoints = None
-                    last_clicked = json.dumps(None)
                     location = 'null'
-                elif selectedpoints is not None:
-                    temp = selectedpoints['points'][0]['location']
-                    if temp == location:
-                        run_callback = False
-                    else:
-                        run_callback = True
-                        location = selectedpoints['points'][0]['location']
-                        last_clicked = json.dumps(location)
-                else:
-                    if location == 'null':
-                        run_callback = True
-                    else:
-                        run_callback = False
-            elif selectedpoints is not None:
-                temp = selectedpoints['points'][0]['location']
-                if temp == location:
-                    run_callback = False
-                else:
-                    run_callback = True
-                    location = selectedpoints['points'][0]['location']
-                    last_clicked = json.dumps(location)
-            else:
-                if location == 'null':
-                    run_callback = True
-                else:
-                    run_callback = False
-        elif selectedpoints is not None:
-            temp = selectedpoints['points'][0]['location']
-            if temp == location:
-                run_callback = False
-            else:
-                run_callback = True
-                location = selectedpoints['points'][0]['location']
-                last_clicked = json.dumps(location)
-        else:
-            if location == 'null':
-                run_callback = True
-            else:
-                run_callback = False
+                    current_selection['location'] = 'null'
+                    last_selection = current_selection
+                last_zoom = current_zoom
+                    
+               
         # ctx = dash.callback_context
         # changed_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
@@ -263,12 +257,6 @@ def display_selected_data(selectedpoints, relaydata,
 
         #update utility with relevant information: 
         if run_callback:
-            util.day_of_week = day_selection
-            util.day_night = time_selection
-            util.duration = time_slider
-            year = year_selection
-            month = month_selection
-            transition_time = (int(time_slider_driving_duration)*15)/60
         #Checks if there are any selected points, returns zoomed out map if None
             if location == 'null':
                 print('No Zone Selected')
@@ -295,9 +283,9 @@ def display_selected_data(selectedpoints, relaydata,
                 color_data = 'pickup_score'
                 location_ID = "Zone_ID"
                 fkey = "properties.locationid"
-                center_data = home_position
+                center_data = home_view['center']
                 color_scale = "RdBu"
-                zoom_level = home_zoom
+                zoom_level = home_view['zoom']
                 hover_dataset = ['borough']
                 color_midpoint = np.mean(choro_df['pickup_score'].values)
                 range_color = [choro_df['pickup_score'].min(), 
@@ -376,7 +364,8 @@ def display_selected_data(selectedpoints, relaydata,
         #             textposition = "bottom center", textfont=dict(size=16, color='black'),
         #             name = 'Current Location')
         # ipdb.set_trace()
-        return location, fig, time_slider, selectedpoints, last_clicked
+        return (location, fig, time_slider, selectedpoints, 
+                json.dumps(last_selection), json.dumps(last_zoom))
 
 if __name__ == '__main__':
     #Use this line if running locally
