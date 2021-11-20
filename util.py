@@ -218,7 +218,7 @@ class Utility:
         assert np.all(ranked_pu_zones['pickup_zone'].values == node_ids), \
             'something wrong with weighted profit calculation'
         pickupscore = ranked_pu_zones['weighted_profit'].values
-        # pickupscore = pickupscore/pickupscore.max()
+        pickupscore = pickupscore/pickupscore.max()
         self.pickupscore_ = pickupscore
         # Get the undirected adjacency matrix
         idx = np.argsort(-pickupscore)[:top]
