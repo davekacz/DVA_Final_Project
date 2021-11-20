@@ -175,7 +175,7 @@ app.layout = html.Div(children=[
         ]),
     html.H5(children='Hours left in your day: ', style={'display': 'inline-block'}),
     html.H5(id='slider-output-container', style={'display': 'inline-block'}),
-    dcc.Store(id = 'location'),
+    dcc.Store(id = 'lastselection'),
     dcc.Store(id = 'lastzoom')
 ])
 
@@ -184,7 +184,7 @@ app.layout = html.Div(children=[
     Output('choropleth', 'figure'),
     Output('slider-output-container', 'children'),    
     Output('choropleth', 'selectedData'),
-    Output('location', 'data'),
+    Output('lastselection', 'data'),
     Output('lastzoom', 'data'),
     Input('choropleth', 'selectedData'),
     Input('choropleth', 'relayoutData'), 
@@ -195,7 +195,7 @@ app.layout = html.Div(children=[
     Input('year_select', 'value'),
     Input('time_slider_driving_duration', 'value'),
     Input('choropleth', 'figure'),
-    Input('location', 'data'),
+    Input('lastselection', 'data'),
     Input('lastzoom', 'data'))
 
 def display_selected_data(selectedpoints, relaydata,
@@ -204,8 +204,8 @@ def display_selected_data(selectedpoints, relaydata,
                           time_slider_driving_duration, figure,
                           last_selection, last_zoom):
         # print('clickedpoint', clickedpoint)
-        print ('selectedpoints:', selectedpoints)
-        print ('relaypoints:', relaydata)
+        # print ('selectedpoints:', selectedpoints)
+        # print ('relaypoints:', relaydata)
         util.day_of_week = day_selection
         util.day_night = time_selection
         util.duration = time_slider
