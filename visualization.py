@@ -6,7 +6,7 @@ import dash
 from dash.dependencies import Input, Output
 from dash import dcc
 from dash import html
-from dash.html.Select import Select
+#from dash.html.Select import Select
 import plotly.express as px
 import pandas as pd
 import json
@@ -174,13 +174,11 @@ app.layout = html.Div(children=[
             max = 4,
             step = None,            
             marks={
-            0: '0',
-            1: '15',
-            2: '30',
-            3: '45',
-            4: '60'
+            1: '10',
+            2: '20',
+            3: '30'
             },
-            value= 1 #defaults to the first option
+            value= 2 #defaults to the first option
         ),
         ], 
         style={'width': '15%'}
@@ -283,6 +281,10 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
             choro_df = pd.merge(choro_df, zone_names, left_on='Zone_ID', right_on='LocationID')
             choro_df.drop(columns='LocationID', inplace=True)
             
+            #choro_df["Text"] = "At borough, " + choro_df["borough"] + ", zone," + choro_df["zone"] + ". The pickup score is:" + str(choro_df["pickup_score"])
+
+            choro_df["Text"] = choro_df.apply(lambda row: "At " + row["borough"] + " borough, " + row["zone"] + " zone," +  " the pickup score is:" + str(round(row["pickup_score"],2)), axis=1)
+            
             df = choro_df
             geoj = taxi_geo
             color_data = 'pickup_score'
@@ -291,7 +293,12 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
             center_data = {"lat": 40.6908, "lon": -74.0060}
             color_scale = "bluered"
             zoom_level = 10
-            hover_dataset = ['borough']
+            color_midpoint = np.mean(choro_df['pickup_score'].values)
+            range_color = [choro_df['pickup_score'].min(), 
+                               choro_df['pickup_score'].max()]            
+
+            
+            hover_dataset = {'Text':False, 'Zone_ID':False, 'borough':False,'zone':False, 'pickup_score':False} #
 
         else:
             location = int(json.dumps(selectedpoints['points'][0]['location']))
@@ -301,17 +308,28 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
             select_df['score'] = 0
             select_df['score'].iloc[int(location)] = 1'''
             neighbors = util.top_neighbor(location, month_selection, 
-                                        year_selection, time_slider, transition_time = (int(time_slider_driving_duration)*15)/60)
+                                        year_selection, time_slider, transition_time = (int(time_slider_driving_duration)*10)/60)
             base_amount = neighbors.loc[location, 'expected_total_amount']
             
             neighbors['pct_extra'] = (100 * (neighbors['expected_total_amount'] 
-                                            - base_amount)/base_amount)         
-            
+                                            - base_amount)/base_amount)   
+                  
+            neighbors[neighbors['pct_extra']<0] = 0
 
             neighbors = pd.merge(zone_names,neighbors,how = 'left',
                                 left_on='LocationID', right_on='Zone_ID', right_index = True)
             
             neighbors.replace(np.nan, 0, inplace=True)
+            
+            neighbors["Text"] = neighbors.apply(lambda row: 
+                "There is no financial benefit in driving to " + row["borough"] + " borough, " + row["zone"] + " zone," +  " compared to your current zone."
+                if row["pct_extra"]<=0                    
+                else
+                    "If you drive to " + row["borough"] + " borough, " + row["zone"] + " zone," +  " the avg trip time for a pickup is: " + str(round(row["avg_trip_time"]*60,2)) 
+                    + " minutes. <br> You will make on avg $" + str(round(row["avg_total_amount"],2)) + " per pickup. This amount is $" + str(round(row["avg_total_amount"]*(row["pct_extra"]/100),2)) + ' more than you current zone.', axis=1)
+ 
+            #neighbors["hover_text"] = "In borough, " + neighbors["borough"]
+
         #fig = {} #attempt to reset figure - trying to remove current/best points
 
             df = neighbors
@@ -322,7 +340,12 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
             center_data = {"lat": centers.loc[location, 'avg_lat'],"lon": centers.loc[location, 'avg_long']}
             color_scale = "bluered"
             zoom_level = 11.5
-            hover_dataset = ['borough', 'avg_trip_time', 'expected_total_amount']            
+            color_midpoint = (neighbors['pct_extra'].max()/2)
+            range_color = [neighbors['pct_extra'].min() , 
+                               neighbors['pct_extra'].max()]         
+            
+            hover_dataset = {'Text':False, 'LocationID':True, 'borough':False,'zone':False, 'avg_trip_time':False, 'avg_total_amount' :False, 'num_trips':False, 'expected_total_amount':False, 'pct_extra':False}   
+            #hover_dataset = ["hover_text"] #['borough', 'avg_trip_time', 'expected_total_amount']            
             
   
             
@@ -335,12 +358,14 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
                         featureidkey=fkey,
                         center=center_data,
                         color_continuous_scale=color_scale,
+                        range_color = range_color,
+                        color_continuous_midpoint  = color_midpoint,                        
                         opacity = .5,
                         mapbox_style="streets", 
                         zoom=zoom_level,
                         height = 800,
-                        hover_name = 'zone',
-                        hover_data=hover_dataset,
+                        hover_name = 'Text',
+                        hover_data=hover_dataset
                         )
 
         #Add Scatter Plot to render the Best Location to pickup
