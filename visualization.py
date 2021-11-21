@@ -11,9 +11,11 @@ import plotly.express as px
 import pandas as pd
 import json
 import numpy as np 
-#import ipdb
+import ipdb
 #Page rank and Random Walk Functions
 from util import Utility
+
+import plotly.graph_objects as go
 
 #set access token for mapbox
 px.set_mapbox_access_token('pk.eyJ1IjoiZGF2ZWthY3oiLCJhIjoiY2t2ZnEyNTVnNDNvNDJvcXBvdGpkd2V6OCJ9.KZLuPalXbe5r40WG13fcUg')
@@ -252,7 +254,7 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
 
         #supposed to show how and why the callback was called - can't figure out
         #can maybe just use if statement below instead?
-        #ipdb.set_trace()
+
         ctx = dash.callback_context
         changed_id = ctx.triggered[0]['prop_id'].split('.')[0]
         #print (changed_id)
@@ -269,7 +271,7 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
 
     #Checks if there are any selected points, returns zoomed out map if None
         if not selectedpoints:
-            location = 'NULL'
+            location = 0
             
             #If no zones are selected, return unzoomed overall map
 
@@ -308,9 +310,9 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
             zoom_level = 10
             color_midpoint = np.mean(choro_df['pickup_score'].values)
             range_color = [choro_df['pickup_score'].min(), 
-                               choro_df['pickup_score'].max()]            
+                               choro_df['pickup_score'].max()]           
 
-            
+            best_zone = 0#40.61470329184547
             hover_dataset = {'Text':False, 'Zone_ID':False, 'borough':False,'zone':False, 'pickup_score':False} #
 
         else:
@@ -358,6 +360,7 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
                                neighbors['pct_extra'].max()]         
             
             hover_dataset = {'Text':False, 'LocationID':True, 'borough':False,'zone':False, 'avg_trip_time':False, 'avg_total_amount' :False, 'num_trips':False, 'expected_total_amount':False, 'pct_extra':False}   
+            best_zone = df.loc[df['pct_extra'].idxmax(), 'LocationID']
             #hover_dataset = ["hover_text"] #['borough', 'avg_trip_time', 'expected_total_amount']            
             
   
@@ -380,6 +383,49 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
                         hover_name = 'Text',
                         hover_data=hover_dataset
                         )
+
+        #if selectedpoints:  
+                    # Add Scatter Plot to render the Best Location to pickup
+        
+        #ipdb.set_trace()
+        #if best_zone != 0:
+        texttrace = go.Scattermapbox(            
+                            lat= [centers.loc[best_zone, 'avg_lat']], #[40.61470329184547],
+                            lon=[centers.loc[best_zone, 'avg_long']], #[-73.83154411158795],
+                            text=['Best Location'],
+                            textfont={"color":"white","size":20, "family":"Courier New"},
+                            mode="text",
+                            name="Bergeron"
+                        )
+        fig.add_trace(texttrace)
+            
+        fig.add_scattermapbox(lat = [centers.loc[best_zone, 'avg_lat']],
+                                                                                    
+                    lon = [centers.loc[best_zone, 'avg_long']],
+                    mode = 'markers+text',
+                    text = ['Best Location'],  #a list of strings, one  for each geographical position  (lon, lat)
+                    below='',
+                    marker_size=15, marker_color='rgb(0,128,0)',
+                                                        
+                    textposition = "bottom center", textfont=dict(size=16, color='black'),
+                                                                    
+                    name = 'Best Location',
+                    hoverinfo="none",
+                    # hide from the legend
+                    showlegend=False)
+            
+        fig.add_scattermapbox(lat=[centers.loc[location, 'avg_lat']],
+                                   lon = [centers.loc[location, 'avg_long']],
+                                   mode = 'markers+text',
+                                   text = ['Current Location'],  #a list of strings, one  for each geographical position  (lon, lat)
+                                   below='',
+                                   marker_size=15, marker_color='rgb(255, 255, 0)',
+                                   textposition = "bottom center", textfont=dict(size=16, color='black'),
+                                   name = 'Current Location',
+                                   hoverinfo="none",
+                                   # hide from the legend
+                                   showlegend=False )           
+
 
         # if selectedpoints:
         #     # Add Scatter Plot to render the Best Location to pickup
