@@ -290,6 +290,7 @@ def display_selected_data(selectedpoints, relaydata,
                 color_midpoint = np.mean(choro_df['pickup_score'].values)
                 range_color = [choro_df['pickup_score'].min(), 
                                choro_df['pickup_score'].max()]
+                last_zoom = home_view
     
             else:
                 print('Calculating top neigbors...')
@@ -315,6 +316,8 @@ def display_selected_data(selectedpoints, relaydata,
                 range_color = [neighbors['pct_extra'].min(), 
                                neighbors['pct_extra'].max()]
                 hover_dataset = ['borough', 'avg_trip_time', 'expected_total_amount']
+                last_zoom = {'center': center_data,
+                             'zoom': zoom_level}
                 # neighbors['pct_extra'].fillna(-100, inplace=True)
             fig = px.choropleth_mapbox(
                             df, 
@@ -340,29 +343,29 @@ def display_selected_data(selectedpoints, relaydata,
                               coloraxis_showscale=True,
                               margin={"r":0,"t":0,"l":0,"b":0})
 
-        #Add Scatter Plot to render the Best Location to pickup
-        #symbols would be cool, but work differently, don't render if close unless you zoom in.
-        # if (location != 'NULL') and neighbors['pct_extra'].idxmax():
-        #     best_zone = neighbors.loc[neighbors['pct_extra'].idxmax(), 'LocationID']
-        #     fig.add_scattermapbox(lat = [centers.loc[best_zone, 'avg_lat']],
-        #             lon = [centers.loc[best_zone, 'avg_long']],
-        #             mode = 'markers+text',
-        #             text = ['Best Location'],  #a list of strings, one  for each geographical position  (lon, lat)              
-        #             below='', 
-        #             marker_size=15, marker_color='rgb(0,0,255)', 
-        #             textposition = "bottom center", textfont=dict(size=16, color='black'),
-        #             name = 'Best Location')
-
-        # #Add Scatter Plot to render the Current location 
-        # if location != 'NULL':
-        #     fig.add_scattermapbox(lat = [centers.loc[location, 'avg_lat']],
-        #             lon = [centers.loc[location, 'avg_long']],
-        #             mode = 'markers+text',
-        #             text = ['Current Location'],  #a list of strings, one  for each geographical position  (lon, lat)              
-        #             below='',                 
-        #             marker_size=15, marker_color='rgb(235, 0, 100)',
-        #             textposition = "bottom center", textfont=dict(size=16, color='black'),
-        #             name = 'Current Location')
+            #Add Scatter Plot to render the Best Location to pickup
+            #symbols would be cool, but work differently, don't render if close unless you zoom in.
+            # if (location != 'null') and neighbors['pct_extra'].idxmax():
+            #     best_zone = neighbors.loc[neighbors['pct_extra'].idxmax(), 'LocationID']
+            #     fig.add_scattermapbox(lat = [centers.loc[best_zone, 'avg_lat']],
+            #             lon = [centers.loc[best_zone, 'avg_long']],
+            #             mode = 'markers+text',
+            #             text = ['Best Location'],  #a list of strings, one  for each geographical position  (lon, lat)              
+            #             below='', 
+            #             marker_size=15, marker_color='rgb(0,0,255)', 
+            #             textposition = "bottom center", textfont=dict(size=16, color='black'),
+            #             name = 'Best Location')
+    
+            # #Add Scatter Plot to render the Current location 
+            # if location != 'null':
+            #     fig.add_scattermapbox(lat = [centers.loc[location, 'avg_lat']],
+            #             lon = [centers.loc[location, 'avg_long']],
+            #             mode = 'markers+text',
+            #             text = ['Current Location'],  #a list of strings, one  for each geographical position  (lon, lat)              
+            #             below='',                 
+            #             marker_size=15, marker_color='rgb(235, 0, 100)',
+            #             textposition = "bottom center", textfont=dict(size=16, color='black'),
+            #             name = 'Current Location')
         # ipdb.set_trace()
         return (location, fig, time_slider, selectedpoints, 
                 json.dumps(last_selection), json.dumps(last_zoom))
