@@ -71,10 +71,11 @@ fig.update_layout(clickmode='event+select')'''
 
 #Create the website layout
 app.layout = html.Div(children=[
-    html.H1(children='NYC Cabbie Director'), 
+    html.H1(children='NYC Cabbie Director', className="title"),
     html.H4(children='''Welcome to the NYC Cabbie Director!  Our app hopes to help NYC Yellow cab drivers
-                        find a zone near their current zone that will lead them to having a more profitable day!'''),
-    html.H4(children='''Select the month, weekday or weekend, and the time, and the year to query:'''),
+                        find a zone near their current zone that will lead them to having a more profitable day!''', className="subtitle"),
+    html.H4(children='''Select the month, weekday or weekend, and the time, and the year to query:''', className="subtitle"),
+    html.Br(),			  
     #First Dropdown
     html.Div([
         dcc.Dropdown(
@@ -95,7 +96,7 @@ app.layout = html.Div(children=[
         ], 
         value=1 #defaults to the first option
         ),
-    ], style={'width': '15%', 'display': 'inline-block'}),
+    ], style={'width': '25%', 'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center'}),
 
     #Second Dropdown
     html.Div([
@@ -107,7 +108,7 @@ app.layout = html.Div(children=[
         ], 
         value='weekday' #defaults to the first option
         ),
-    ], style={'width': '15%', 'display': 'inline-block'}), 
+    ], style={'width': '25%', 'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center'}),
 
     #Third Dropdown
     html.Div([
@@ -119,7 +120,7 @@ app.layout = html.Div(children=[
         ], 
         value='day' #defaults to the first option
         ),
-    ], style={'width': '15%', 'display': 'inline-block'}),
+    ], style={'width': '25%', 'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center'}),
 
     #Fourth Dropdown
     html.Div([
@@ -133,10 +134,13 @@ app.layout = html.Div(children=[
         ], 
         value=2019 #defaults to the first option
         ),
-    ], style={'width': '15%', 'display': 'inline-block'}),
+    ], style={'width': '25%', 'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center'}),
 
 
     #Text above slider bar1
+    html.Br(),			  
+    html.Br(), 	
+	
     html.H4(children='''Select how many hours are left in your day:'''),
 
     #slider bar to select how many hours are left in the day
@@ -160,7 +164,10 @@ app.layout = html.Div(children=[
             value= 8 #defaults to the first option
         ),
         ], 
-        style={'width': '60%'}
+        style={
+            "width": "100%",
+            "height": "100%"
+        }		 
     ),
     
     #Text above slider bar2
@@ -181,7 +188,10 @@ app.layout = html.Div(children=[
             value= 2 #defaults to the first option
         ),
         ], 
-        style={'width': '15%'}
+        style={
+            "width": "100%",
+            "height": "100%"
+        }	 
     ),    
     
     #Text above slider bar
@@ -206,9 +216,12 @@ app.layout = html.Div(children=[
     dcc.Graph(
         id='choropleth',
         figure = {},
-        style={'width': '75%', 'display': 'inline-block'},
-        config = {'doubleClick': 'reset+autosize'} 
-    )   
+        style={
+            "width": "100%",
+            "height": "100%"
+        },
+        config = {'doubleClick': 'reset+autosize'}   
+	)   
 ])
 
 #Old callback - can't have two callbacks updating the same figure - 
@@ -242,7 +255,7 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
         #ipdb.set_trace()
         ctx = dash.callback_context
         changed_id = ctx.triggered[0]['prop_id'].split('.')[0]
-        print (changed_id)
+        #print (changed_id)
 
         # ------------
         #Should call Karns algorith here, pass it all the inputs here,
@@ -368,30 +381,41 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
                         hover_data=hover_dataset
                         )
 
-        #Add Scatter Plot to render the Best Location to pickup
-        #symbols would be cool, but work differently, don't render if close unless you zoom in.
-        
-        # if neighbors['pct_extra'].idxmax():
-        #     best_zone = neighbors.loc[neighbors['pct_extra'].idxmax(), 'LocationID']
-        #     fig.add_scattermapbox(lat = [centers.loc[best_zone, 'avg_lat']],
-        #             lon = [centers.loc[best_zone, 'avg_long']],
-        #             mode = 'markers+text',
-        #             text = ['Best Location'],  #a list of strings, one  for each geographical position  (lon, lat)              
-        #             below='', 
-        #             marker_size=15, marker_color='rgb(0,0,255)', 
-        #             textposition = "bottom center", textfont=dict(size=16, color='black'),
-        #             name = 'Best Location')
-        
-        #Add Scatter Plot to render the Current location 
-        # fig.add_scattermapbox(lat = [centers.loc[location, 'avg_lat']],
-        #         lon = [centers.loc[location, 'avg_long']],
+        # if selectedpoints:
+        #     # Add Scatter Plot to render the Best Location to pickup
+																							   
+		
+							  
+        #     if neighbors['pct_extra'].idxmax():
+        #         best_zone = neighbors.loc[neighbors['pct_extra'].idxmax(), 'LocationID']
+        #         fig.add_scattermapbox(lat = [centers.loc[best_zone, 'avg_lat']],
+																				  
+        #         lon = [centers.loc[best_zone, 'avg_long']],
         #         mode = 'markers+text',
-        #         text = ['Current Location'],  #a list of strings, one  for each geographical position  (lon, lat)              
-        #         below='',                 
-        #         marker_size=15, marker_color='rgb(235, 0, 100)',
+        #         text = ['Best Location'],  #a list of strings, one  for each geographical position  (lon, lat)
+        #         below='',
+        #         marker_size=15, marker_color='rgb(0,128,0)',
+													   
         #         textposition = "bottom center", textfont=dict(size=16, color='black'),
-        #         name = 'Current Location')
+																
+        #         name = 'Best Location',
+        #         hoverinfo="none",
+        #         # hide from the legend
+        #         showlegend=False)
 
+        #     # Add Scatter Plot to render the Current location
+        #     fig.add_scattermapbox(lat=[centers.loc[location, 'avg_lat']],
+        #                           lon = [centers.loc[location, 'avg_long']],
+        #                           mode = 'markers+text',
+        #                           text = ['Current Location'],  #a list of strings, one  for each geographical position  (lon, lat)
+        #                           below='',
+        #                           marker_size=15, marker_color='rgb(255, 255, 0)',
+        #                           textposition = "bottom center", textfont=dict(size=16, color='black'),
+        #                           name = 'Current Location',
+        #                           hoverinfo="none",
+        #                           # hide from the legend
+        #                           showlegend=False )
+								  
         #fig.update_mapboxes(pitch=45)
         fig.update_layout(clickmode='event+select', title = 'NYC Cabbie Director', coloraxis_showscale=True,
         margin={"r":0,"t":0,"l":0,"b":0})
@@ -402,7 +426,7 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
 
         #print (neighbors)
 
-        print('No Zone Selected')
+        #print('No Zone Selected')
 
         #Return NA for no zone selected, and the mapbox, and the time selected
         return location, fig, time_slider_driving_duration
