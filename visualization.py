@@ -11,7 +11,7 @@ import plotly.express as px
 import pandas as pd
 import json
 import numpy as np 
-import ipdb
+#import ipdb
 #Page rank and Random Walk Functions
 from util import Utility
 
@@ -163,7 +163,7 @@ app.layout = html.Div(children=[
             8: '8',
 
             },
-            value= 8 #defaults to the first option
+            value= 4 #defaults to the first option
         ),
         ], 
         style={
@@ -343,7 +343,7 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
                 if row["pct_extra"]<=0                    
                 else
                     "If you drive to " + row["borough"] + " borough, " + row["zone"] + " zone," +  " the avg trip time for a pickup is: " + str(round(row["avg_trip_time"]*60,2)) 
-                    + " minutes. <br> You will make on avg $" + str(round(row["avg_total_amount"],2)) + " per pickup. This amount is $" + str(round(row["avg_total_amount"]*(row["pct_extra"]/100),2)) + ' more than you current zone.', axis=1)
+                    + " minutes. <br> You will make on avg $" + str(round(row["avg_total_amount"],2)) + " in the time left of your day. This amount is $" + str(round(row["avg_total_amount"]*(row["pct_extra"]/100),2)) + ' more than you current zone.', axis=1)
  
             #neighbors["hover_text"] = "In borough, " + neighbors["borough"]
 
