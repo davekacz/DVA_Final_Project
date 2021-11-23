@@ -4,8 +4,13 @@
 
 import dash
 from dash.dependencies import Input, Output
-from dash import dcc
-from dash import html
+
+#from dash import dcc
+#from dash import html
+
+import dash_core_components as dcc
+import dash_html_components as html
+
 #from dash.html.Select import Select
 import plotly.express as px
 import pandas as pd
@@ -15,7 +20,9 @@ import numpy as np
 #Page rank and Random Walk Functions
 from util import Utility
 
-import plotly.graph_objects as go
+#import plotly.graph_objects as go
+
+#config = {'doubleClickDelay': 10}
 
 #set access token for mapbox
 px.set_mapbox_access_token('pk.eyJ1IjoiZGF2ZWthY3oiLCJhIjoiY2t2ZnEyNTVnNDNvNDJvcXBvdGpkd2V6OCJ9.KZLuPalXbe5r40WG13fcUg')
@@ -55,50 +62,15 @@ centers.set_index('zone_id', inplace = True)
 select_df = pd.DataFrame(location_id, columns=['location_id'])
 select_df['score'] = 0'''
 
-#The original figure - Leftover from original code - think this should go and be updated using callback
-#when the dropdowns initialize and cause the callback function to be triggered.   
-'''fig = px.choropleth_mapbox(zone_df, geojson=taxi_geo, color='first',
-                        locations="zone", featureidkey="properties.locationid",
-                        center={"lat": 40.7128, "lon": -74.0060},
-                        color_continuous_scale="greens",
-                        opacity = .35,
-                        mapbox_style="open-street-map", 
-                        zoom=10,
-                        height = 800,
-                        hover_name = 'name',
-                        hover_data=['borough']
-                        )
-
-fig.update_layout(clickmode='event+select')'''
 
 #Create the website layout
 app.layout = html.Div(children=[
     html.H1(children='NYC Cabbie Director', className="title"),
     html.H4(children='''Welcome to the NYC Cabbie Director!  Our app hopes to help NYC Yellow cab drivers
                         find a zone near their current zone that will lead them to having a more profitable day!''', className="subtitle"),
-    html.H4(children='''Select the month, weekday or weekend, and the time, and the year to query:''', className="subtitle"),
+    html.H4(children='''To view historic analysis on the best nearby zone, select the weekday or weekend, day or night, month, and the year to query:''', className="subtitle"),
     html.Br(),			  
-    #First Dropdown
-    html.Div([
-        dcc.Dropdown(
-        id='month_select',
-        options=[
-            {'label': 'January', 'value': 1},
-            {'label': 'February', 'value': 2},
-            {'label': 'March', 'value': 3},
-            {'label': 'April', 'value': 4},
-            {'label': 'May', 'value': 5},
-            {'label': 'June', 'value': 6},
-            {'label': 'July', 'value': 7},
-            {'label': 'August', 'value': 8},
-            {'label': 'September', 'value': 9},
-            {'label': 'October', 'value': 10},
-            {'label': 'Novembor', 'value': 11},
-            {'label': 'December', 'value': 12},
-        ], 
-        value=1 #defaults to the first option
-        ),
-    ], style={'width': '25%', 'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center'}),
+
 
     #Second Dropdown
     html.Div([
@@ -124,6 +96,30 @@ app.layout = html.Div(children=[
         ),
     ], style={'width': '25%', 'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center'}),
 
+    #First Dropdown
+    html.Div([
+        dcc.Dropdown(
+        id='month_select',
+        options=[
+            {'label': 'January', 'value': 1},
+            {'label': 'February', 'value': 2},
+            {'label': 'March', 'value': 3},
+            {'label': 'April', 'value': 4},
+            {'label': 'May', 'value': 5},
+            {'label': 'June', 'value': 6},
+            {'label': 'July', 'value': 7},
+            {'label': 'August', 'value': 8},
+            {'label': 'September', 'value': 9},
+            {'label': 'October', 'value': 10},
+            {'label': 'Novembor', 'value': 11},
+            {'label': 'December', 'value': 12},
+        ], 
+        value=1 #defaults to the first option
+        ),
+    ], style={'width': '25%', 'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center'}),
+
+
+
     #Fourth Dropdown
     html.Div([
         dcc.Dropdown(
@@ -137,6 +133,8 @@ app.layout = html.Div(children=[
         value=2019 #defaults to the first option
         ),
     ], style={'width': '25%', 'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center'}),
+
+
 
 
     #Text above slider bar1
@@ -202,17 +200,13 @@ app.layout = html.Div(children=[
 
     #Show what's currently clicked
     html.Div([
-            dcc.Markdown("""
-                **Click Data**
-
-                Selected Point:
-            """),
+            dcc.Markdown("""Selected Zone:"""),
             #The portion that actually shows the selection
             html.Div(id='selected-data')
         ]),
     
-    html.H5(children='Driving hours: ', style={'display': 'inline-block'}),
-    html.H5(id='slider-output-container', style={'display': 'inline-block'}),
+    #html.H5(children='Driving hours: ', style={'display': 'inline-block'}),
+    #html.H5(id='slider-output-container', style={'display': 'inline-block'}),
     
     #Inset Chloropeth Graph
     dcc.Graph(
@@ -235,8 +229,8 @@ app.layout = html.Div(children=[
 
 @app.callback(
     [Output('selected-data', 'children'),
-    Output('choropleth', 'figure'),
-    Output('slider-output-container', 'children')],
+    Output('choropleth', 'figure')],
+    #Output('slider-output-container', 'children')],
     [Input('choropleth', 'selectedData'),    
     Input('month_select', 'value'),
     Input('year_select', 'value'),
@@ -256,7 +250,7 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
         #can maybe just use if statement below instead?
 
         ctx = dash.callback_context
-        changed_id = ctx.triggered[0]['prop_id'].split('.')[0]
+        #changed_id = ctx.triggered[0]['prop_id'].split('.')[0]
         #print (changed_id)
 
         # ------------
@@ -362,8 +356,13 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
                                neighbors['pct_extra'].max()]         
             
             #This selects which columns you want to show on hover
-            hover_dataset = {'Text':False, 'LocationID':True, 'borough':False,'zone':False, 'avg_trip_time':False, 'avg_total_amount' :False, 'num_trips':False, 'expected_total_amount':False, 'pct_extra':False}   
-            best_zone = df.loc[df['pct_extra'].idxmax(), 'LocationID']
+            hover_dataset = {'Text':False, 'LocationID':False, 'borough':False,'zone':False, 'avg_trip_time':False, 'avg_total_amount' :False, 'num_trips':False, 'expected_total_amount':False, 'pct_extra':False}   
+            
+            # If the current zone is the best zone
+            if len(df[df['pct_extra']!=0])==0:
+              best_zone = location
+            else:
+              best_zone = df.loc[df['pct_extra'].idxmax(), 'LocationID']
             #hover_dataset = ["hover_text"] #['borough', 'avg_trip_time', 'expected_total_amount']         
                           
         
@@ -417,11 +416,12 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
 			  
         #fig.update_mapboxes(pitch=45)
         fig.update_layout(clickmode='event+select', title = 'NYC Cabbie Director', coloraxis_showscale=True,
-        margin={"r":0,"t":0,"l":0,"b":0})
+        margin={"r":0,"t":0,"l":0,"b":0}, hovermode=None)
 
         #Return NA for no zone selected, and the mapbox, and the time selected
-        return location, fig, time_slider_driving_duration
-
+        #return location, fig, time_slider_driving_duration
+        return location, fig
+    
         #If a point is selected... returns zoomed in - need table of zone centers to zoom to
  
 if __name__ == '__main__':
