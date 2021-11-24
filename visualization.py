@@ -19,6 +19,7 @@ import numpy as np
 #import ipdb
 #Page rank and Random Walk Functions
 from util import Utility
+from dash.exceptions import PreventUpdate
 
 #import plotly.graph_objects as go
 
@@ -313,7 +314,11 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
             hover_dataset = {'Text':False, 'Zone_ID':False, 'borough':False,'zone':False, 'pickup_score':False} #
 
         else:
-            location = int(json.dumps(selectedpoints['points'][0]['location']))
+            if ('location' in selectedpoints['points'][0]):
+                location = int(json.dumps(selectedpoints['points'][0]['location']))
+            else:
+                raise PreventUpdate
+                location = 0    
 
             neighbors = util.top_neighbor(location, month_selection, 
                                         year_selection, time_slider, transition_time = (int(time_slider_driving_duration)*10)/60)
