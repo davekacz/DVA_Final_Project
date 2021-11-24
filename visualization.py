@@ -341,8 +341,8 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
                 "There is no financial benefit in driving to " + row["borough"] + " borough, " + row["zone"] + " zone," +  " compared to your current zone."
                 if row["pct_extra"]<=0                    
                 else
-                    "If you drive to " + row["borough"] + " borough, " + row["zone"] + " zone," +  " the avg trip time for a pickup is: " + str(round(row["avg_trip_time"]*60,2)) 
-                    + " minutes. <br> You will make on avg $" + str(round(row["avg_total_amount"],2)) + " in the time left of your day. This amount is $" + str(round(row["avg_total_amount"]*(row["pct_extra"]/100),2)) + ' more than you current zone.', axis=1)
+                    "If you drive to " + row["borough"] + " borough, " + row["zone"] + " zone,"
+                    + "<br>you will make on avg $" + str(round(row["expected_total_amount"]*(row["pct_extra"]/100),2)) + ' more than you current zone in the time left of your day.', axis=1)
  
             #neighbors["hover_text"] = "In borough, " + neighbors["borough"]
 
