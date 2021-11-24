@@ -342,7 +342,7 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
                 if row["pct_extra"]<=0                    
                 else
                     "If you drive to " + row["borough"] + " borough, " + row["zone"] + " zone,"
-                    + "<br>you will make on avg $" + str(round(row["expected_total_amount"]*(row["pct_extra"]/100),2)) + ' more than you current zone in the time left of your day.', axis=1)
+                    + "<br>you will make on avg $" + str(round(row["expected_total_amount"]*(row["pct_extra"]/100),2)) + ' more than your current zone in the remaining time of your day.', axis=1)
  
             #neighbors["hover_text"] = "In borough, " + neighbors["borough"]
 
