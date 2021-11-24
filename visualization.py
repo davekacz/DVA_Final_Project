@@ -82,7 +82,7 @@ app.layout = html.Div(children=[
         ], 
         value='weekday' #defaults to the first option
         ),
-    ], style={'width': '25%', 'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center'}),
+    ], style={'width': '25%', 'display': 'inline-block', 'alignItems': 'center', 'justifyContent': 'center'}),
 
     #Third Dropdown
     html.Div([
@@ -345,7 +345,7 @@ def display_selected_data(selectedpoints, month_selection,year_selection, day_se
 
             df = neighbors
             geoj = taxi_geo
-            color_data = neighbors['pct_extra']
+            color_data = 'pct_extra'#neighbors['pct_extra']
             location_ID = "LocationID"
             fkey = "properties.locationid"
             center_data = {"lat": centers.loc[location, 'avg_lat'],"lon": centers.loc[location, 'avg_long']}
