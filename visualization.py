@@ -37,10 +37,35 @@ home_view = {'center': {"lat": 40.6908, "lon": -74.0060},
              'zoom': 10}
 #Create the website layout
 app.layout = html.Div(children=[
-    html.H1(children='NYC Cabbie Director'), 
+    html.H1(children='NYC Cabbie Director', className="title"), 
     html.H4(children='''Welcome to the NYC Cabbie Director!  Our app hopes to help NYC Yellow cab drivers
-                        find a zone near their current zone that will lead them to having a more profitable day!'''),
-    html.H4(children='''Select the month, weekday or weekend, and the time, and the year to query:'''),
+                        find a zone near their current zone that will lead them to having a more profitable day!''', className="subtitle"),
+    html.H4(children='''Select the month, weekday or weekend, and the time, and the year to query:''', className="subtitle"),
+    html.Br(),
+    #Second Dropdown
+    html.Div([
+        dcc.Dropdown(
+        id='day_type_select',
+        options=[
+            {'label': 'Weekday', 'value': 'weekday'},
+            {'label': 'Weekend', 'value': 'weekend'},
+        ], 
+        value='weekday' #defaults to the first option
+        ),
+    ], style={'width': '25%', 'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center'}),
+    
+    #Third Dropdown
+    html.Div([
+        dcc.Dropdown(
+        id='time_select',
+        options=[
+            {'label': 'Day (6:00 AM - 6:00 PM)', 'value': 'day'},
+            {'label': 'Night (6:00 PM - 6:00 AM)', 'value': 'night'},
+        ], 
+        value='day' #defaults to the first option
+        ),
+    ], style={'width': '25%', 'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center'}),
+    
     #First Dropdown
     html.Div([
         dcc.Dropdown(
@@ -61,31 +86,8 @@ app.layout = html.Div(children=[
         ], 
         value=1 #defaults to the first option
         ),
-    ], style={'width': '15%', 'display': 'inline-block'}),
+    ], style={'width': '25%', 'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center'}),
 
-    #Second Dropdown
-    html.Div([
-        dcc.Dropdown(
-        id='day_type_select',
-        options=[
-            {'label': 'Weekday', 'value': 'weekday'},
-            {'label': 'Weekend', 'value': 'weekend'},
-        ], 
-        value='weekday' #defaults to the first option
-        ),
-    ], style={'width': '15%', 'display': 'inline-block'}), 
-
-    #Third Dropdown
-    html.Div([
-        dcc.Dropdown(
-        id='time_select',
-        options=[
-            {'label': 'Day (6:00 AM - 6:00 PM)', 'value': 'day'},
-            {'label': 'Night (6:00 PM - 6:00 AM)', 'value': 'night'},
-        ], 
-        value='day' #defaults to the first option
-        ),
-    ], style={'width': '15%', 'display': 'inline-block'}),
 
     #Fourth Dropdown
     html.Div([
@@ -99,10 +101,12 @@ app.layout = html.Div(children=[
         ], 
         value=2019 #defaults to the first option
         ),
-    ], style={'width': '15%', 'display': 'inline-block'}),
+    ], style={'width': '25%', 'display': 'inline-block', 'align-items': 'center', 'justify-content': 'center'}),
 
 
     #Text above slider bar
+    html.Br(),			  
+    html.Br(), 	
     html.H4(children='''Select how many hours are left in your day:'''),
 
     #slider bar to select how many hours are left in the day
@@ -123,10 +127,14 @@ app.layout = html.Div(children=[
         8: '8',
 
     },
-        value= 8 #defaults to the first option
+        value= 4 #defaults to the first option
         ),
 
-    ], style={'width': '60%'}),
+    ], style={
+            "width": "100%",
+            "height": "100%"
+        }		 
+    ),
     
     #Text above slider bar2
     html.H4(children='''Select how many minutes you want to drive to your pickup zone:'''),
@@ -146,12 +154,15 @@ app.layout = html.Div(children=[
             value= 2 #defaults to the first option
         ),
         ], 
-        style={'width': '15%'}
-    ),    
+        style={
+            "width": "100%",
+            "height": "100%"
+        }	 
+    ),       
     
     
     #Text above slider bar
-    html.H4(children='''Select the zone you are currently in, double click another zone to reset your selection:'''),
+    html.H4(children='''Select the zone you are currently in, double click anywhere zone to reset your selection:'''),
 
     #Inset Chloropeth Graph
     dcc.Graph(
@@ -161,22 +172,18 @@ app.layout = html.Div(children=[
             "width": "100%",
             "height": "100%"
         },
-        config = {'doubleClick': 'reset+autosize',
-                  'doubleClickDelay': 600} 
+        config = {'doubleClick': 'reset+autosize'} 
     ),
 
     #Show what's currently clicked
     html.Div([
-            dcc.Markdown("""
-                **Click Data**
-
-                Selected Point:
-            """),
+            dcc.Markdown("""Selected Zone:"""),
             #The portion that actually shows the selection
             html.Div(id='selected-data')
         ]),
-    html.H5(children='Hours left in your day: ', style={'display': 'inline-block'}),
-    html.H5(id='slider-output-container', style={'display': 'inline-block'}),
+    
+    # html.H5(children='Hours left in your day: ', style={'display': 'inline-block'}),
+    # html.H5(id='slider-output-container', style={'display': 'inline-block'}),
     dcc.Store(id = 'lastselection'),
     dcc.Store(id = 'lastzoom')
 ])
@@ -184,8 +191,8 @@ app.layout = html.Div(children=[
 @app.callback(
     Output('selected-data', 'children'),
     Output('choropleth', 'figure'),
-    Output('slider-output-container', 'children'),    
-    Output('choropleth', 'selectedData'),
+    # Output('slider-output-container', 'children'),    
+    # Output('choropleth', 'selectedData'),
     Output('lastselection', 'data'),
     Output('lastzoom', 'data'),
     Input('choropleth', 'selectedData'),
@@ -293,7 +300,7 @@ def display_selected_data(selectedpoints, relaydata,
                 center_data = home_view['center']
                 color_scale = "RdBu"
                 zoom_level = home_view['zoom']
-                hover_dataset = {'Text':False, 'Zone_ID':False, 'borough':False,'zone':False, 'pickup_score':False}
+                hover_dataset = {'Text':True, 'Zone_ID':False, 'borough':False,'zone':False, 'pickup_score':False}
                 color_midpoint = np.mean(choro_df['pickup_score'].values)
                 range_color = [choro_df['pickup_score'].min(), 
                                choro_df['pickup_score'].max()]
@@ -333,7 +340,7 @@ def display_selected_data(selectedpoints, relaydata,
                 range_color = [neighbors['pct_extra'].min(), 
                                neighbors['pct_extra'].max()]
                 #This selects which columns you want to show on hover
-                hover_dataset = {'Text':False, 'LocationID':False, 'borough':False,'zone':False, 'avg_trip_time':False, 'avg_total_amount' :False, 'num_trips':False, 'expected_total_amount':False, 'pct_extra':False}
+                hover_dataset = {'Text':True, 'LocationID':False, 'borough':False,'zone':False, 'avg_trip_time':False, 'avg_total_amount' :False, 'num_trips':False, 'expected_total_amount':False, 'pct_extra':False}
                 last_zoom = {'center': center_data,
                              'zoom': zoom_level}
                 if neighbors['pct_extra'].idxmax():
@@ -367,7 +374,7 @@ def display_selected_data(selectedpoints, relaydata,
                     marker_size=20, 
                     marker_color='rgb(0,0,255)',                                                        
                     textposition = "bottom center", 
-                    textfont=dict(size=20, color='white'),                                                                    
+                    textfont=dict(size=20, color='black'),                                                                    
                     name = 'Best Location',
                     hoverinfo="none",
                     # hide from the legend
@@ -379,9 +386,9 @@ def display_selected_data(selectedpoints, relaydata,
                                        text = ['Current Location'],  #a list of strings, one  for each geographical position  (lon, lat)
                                        below='',
                                        marker_size=20, 
-                                       marker_color='rgb(170, 255, 0)',
+                                       marker_color='rgb(235, 0, 100)',
                                        textposition = "bottom center", 
-                                       textfont=dict(size=20, color='yellow'),
+                                       textfont=dict(size=20, color='black'),
                                        name = 'Current Location',
                                        hoverinfo="none",
                                        # hide from the legend
@@ -417,8 +424,7 @@ def display_selected_data(selectedpoints, relaydata,
             #             textposition = "bottom center", textfont=dict(size=16, color='black'),
             #             name = 'Current Location')
         # ipdb.set_trace()
-        return (location, fig, time_slider, selectedpoints, 
-                json.dumps(last_selection), json.dumps(last_zoom))
+        return location, fig, json.dumps(last_selection), json.dumps(last_zoom)
 
 if __name__ == '__main__':
     #Use this line if running locally
