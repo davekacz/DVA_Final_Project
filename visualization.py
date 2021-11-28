@@ -85,7 +85,9 @@ app.layout = html.Div(children=[
             {'label': 'Weekday', 'value': 'weekday'},
             {'label': 'Weekend', 'value': 'weekend'},
         ], 
-        value='weekday' #defaults to the first option
+        value='weekday', #defaults to the first option
+        searchable = False,
+        clearable=False
         ),
     ], style={'width': '25%', 'display': 'inline-block', 'alignItems': 'center', 'justifyContent': 'center'}),
 
@@ -97,7 +99,9 @@ app.layout = html.Div(children=[
             {'label': 'Day (6:00 AM - 6:00 PM)', 'value': 'day'},
             {'label': 'Night (6:00 PM - 6:00 AM)', 'value': 'night'},
         ], 
-        value='day' #defaults to the first option
+        value='day', #defaults to the first option
+        searchable = False,
+        clearable=False
         ),
     ], style={'width': '25%', 'display': 'inline-block', 'alignItems': 'center', 'justifyContent': 'center'}),
 
@@ -119,7 +123,9 @@ app.layout = html.Div(children=[
             {'label': 'Novembor', 'value': 11},
             {'label': 'December', 'value': 12},
         ], 
-        value=1 #defaults to the first option
+        value=1, #defaults to the first option
+        searchable = False,
+        clearable=False
         ),
     ], style={'width': '25%', 'display': 'inline-block', 'alignItems': 'center', 'justifyContent': 'center'}),
 
@@ -133,7 +139,9 @@ app.layout = html.Div(children=[
             {'label': '2017', 'value': 2017},
             {'label': '2016', 'value': 2016},
         ], 
-        value=2019 #defaults to the first option
+        value=2019, #defaults to the first option
+        searchable = False,
+        clearable=False
         ),
     ], style={'width': '25%', 'display': 'inline-block', 'alignItems': 'center', 'justifyContent': 'center'}),
 
