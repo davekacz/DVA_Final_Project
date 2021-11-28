@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 .title {
     font-family: "Arial Black", Gadget, sans-serif;
@@ -46,10 +47,27 @@
     text-align: right;
     width: 100%;
     padding: 2px;
+=======
+.title {
+    font-size:50px !important;
+    font-weight: bold;
+    text-decoration: underline;
+    text-align: center;
+    width: 100%;
+    padding: 5px;
+}
+
+.subtitle {
+    font-weight: bold;
+    text-align: center;
+    width: 100%;
+    padding: 5px;
+>>>>>>> 2c58edbc56509bf40c167999c9f92b5ee2a3537d
 }
 
 .center_text{
     text-align: center;
+<<<<<<< HEAD
 }
 
 .alignleft {
@@ -101,4 +119,6 @@
     } to {
         transform: rotate(360deg);
     }
+=======
+>>>>>>> 2c58edbc56509bf40c167999c9f92b5ee2a3537d
 }
