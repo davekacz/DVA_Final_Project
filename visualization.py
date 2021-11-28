@@ -120,7 +120,7 @@ app.layout = html.Div(children=[
             {'label': 'August', 'value': 8},
             {'label': 'September', 'value': 9},
             {'label': 'October', 'value': 10},
-            {'label': 'Novembor', 'value': 11},
+            {'label': 'November', 'value': 11},
             {'label': 'December', 'value': 12},
         ], 
         value=1, #defaults to the first option
