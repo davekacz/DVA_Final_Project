@@ -1,0 +1,104 @@
+
+.title {
+    font-family: "Arial Black", Gadget, sans-serif;
+    font-size: 50px;
+    letter-spacing: 2px;
+    word-spacing: 2px;
+    color: #000000;
+    font-weight: normal;
+    text-decoration: none;
+    font-style: normal;
+    font-variant: small-caps;
+    text-transform: none;
+    text-align: center;
+}
+
+.subtitle {
+    font-family: "Arial Black", Gadget, sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    word-spacing: 2px;
+    color: #000000;
+    font-weight: normal;
+    text-decoration: none;
+    font-style: normal;
+    font-variant: small-caps;
+    text-transform: none;
+    text-align: center;
+}
+
+.text {
+    font-weight: normal;
+    text-align: center;
+    width: 100%;
+    padding: 2px;
+}
+
+.textleft {
+    font-weight: normal;
+    text-align: left;
+    width: 100%;
+    padding: 2px;
+}
+
+.textright {
+    font-weight: normal;
+    text-align: right;
+    width: 100%;
+    padding: 2px;
+}
+
+.center_text{
+    text-align: center;
+}
+
+.alignleft {
+    font-weight: normal;
+    width:33%;
+    text-align:center;
+    }
+
+.alignright {
+    font-weight: normal;
+    width:33%;
+    text-align:center;
+    }
+
+._dash-loading-callback::after {
+    background: rgba(0,0,0,0.5);
+    box-sizing: border-box;
+    z-index: 11;
+    position: fixed;
+    width: 15ch;
+    height: 15ch;
+    top: calc(50vh - 15ch / 2);
+    left: calc(50vw - 15ch / 2);
+    border-left: 3px solid white;
+    border-right: 3px solid white;
+    border-top: 3px solid rgba(0,0,0,0);
+    border-bottom: 3px solid rgba(0,0,0,0);
+    border-radius: 50%;
+    line-height: 15ch;
+    color: #ffffff;
+    text-align: center;
+    content: "Loading ...";
+    animation: spin 0.5s ease, loadingtext 0.5s linear;
+    animation-iteration-count: infinite;
+    animation-fill-mode: forwards;
+}
+@keyframes loadingtext {
+    0%    {content: "Loading ...";}
+    16.7% {content: "Loading  ..";}
+    33.3% {content: "Loading   .";}
+    50%   {content: "Loading    ";}
+    66.7% {content: "Loading .  ";}
+    83.3% {content: "Loading .. ";}
+    100%  {content: "Loading ...";}
+}
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    } to {
+        transform: rotate(360deg);
+    }
+}
