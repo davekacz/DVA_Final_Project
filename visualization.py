@@ -187,7 +187,7 @@ app.layout = html.Div(children=[
             8: '8',
 
             },
-            value= 4 #defaults to the first option
+            value= 8 #defaults to the first option
         ),
         ], 
         style={
@@ -235,9 +235,10 @@ app.layout = html.Div(children=[
     html.Br(),
     html.Hr(),
 
-    html.H4(children='''Select a zone to enter Random Walk mode:''', 
-        className="subtitle"),
-    
+    html.H4(children='''Click a zone to enter Random Walk mode''', 
+        className="subtitle2"),
+    html.H4(children='''Double Click another zone to return to Page Rank mode''', 
+        className="subtitle2"),
     #Inset Chloropeth Graph
     dcc.Graph(
         id='choropleth',
