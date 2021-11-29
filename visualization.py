@@ -71,7 +71,7 @@ app.layout = html.Div(children=[
     html.H4(children='''When first landing on the page you are shown a view of the output of our PageRank algorithm, all the zones in NYC are shown, 
                         and the darker colored zones are more profitable.  If you select a zone from the map you are taken to our Random Walk feature.
                         This simulates a driver moving to a nearby zone if they don't currently have a fare.  The algorithm will simulate a number of possible
-                        outcomes based on where fares will take you around the city and the map will update based on where the algorithm believes the most profitable
+                        outcomes based on where fares will take the driver around the city and the map will update based on where the algorithm believes the most profitable
                         starting zone is.  This can be further modified by choosing how many hours are left in the drivers day and how far they are willing to drive
                         to start in a new zone.  ''', className="textleft"),	
     html.Hr(),
