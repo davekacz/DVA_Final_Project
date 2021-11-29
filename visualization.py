@@ -75,7 +75,7 @@ app.layout = html.Div(children=[
                         starting zone is.  This can be further modified by choosing how many hours are left in the drivers day and how far they are willing to drive
                         to start in a new zone.  ''', className="textleft"),	
     html.Hr(),
-    html.H4(children='''To view historic analysis on all the taxi zones in the city, please select from the dropdowns below:''', className="text"),
+    html.H4(children='''Historical Dataset Choices''', className="subtitle"),
 
     #Second Dropdown
     html.Div([
@@ -187,7 +187,7 @@ app.layout = html.Div(children=[
             8: '8',
 
             },
-            value= 8 #defaults to the first option
+            value= 4 #defaults to the first option
         ),
         ], 
         style={
@@ -335,9 +335,11 @@ def display_selected_data(selectedpoints, month_selection, year_selection, day_s
             
             choro_df["Text"] = choro_df.apply(lambda row: "Pickup Score of " + str(round(row["pickup_score"],2)) + " in " + row["zone"] + ", in " + row["borough"], axis=1)
 
+            choro_df['Pickup Score'] = choro_df['pickup_score']
+
             df = choro_df
             geoj = taxi_geo
-            color_data = 'pickup_score'
+            color_data = 'Pickup Score'
             location_ID = "Zone_ID"
             fkey = "properties.locationid"
             center_data = {"lat": 40.6908, "lon": -74.0060}
@@ -388,9 +390,11 @@ def display_selected_data(selectedpoints, month_selection, year_selection, day_s
 
             #fig = {} #attempt to reset figure - trying to remove current/best points
 
+            neighbors['Random Walk Score'] = neighbors['pct_extra']
+
             df = neighbors
             geoj = taxi_geo
-            color_data = 'pct_extra'#neighbors['pct_extra']
+            color_data = 'Random Walk Score' #'pct_extra'#neighbors['pct_extra']
             location_ID = "LocationID"
             fkey = "properties.locationid"
             center_data = {"lat": centers.loc[location, 'avg_lat'],"lon": centers.loc[location, 'avg_long']}
