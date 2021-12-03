@@ -3,7 +3,7 @@
 
 This package contains all the relevant code for our NYC Taxi Pickup Zone recommendation project.  We use both a PageRank algorithm and a RandomWalk algorithm to show NYC Taxi drivers the best place to pick up fares.
 
-The PageRank algorithm provides a score for each of the zones which are then used in our visualization as an overview of where a driver could head in NYC to start their day if they could start anywhere.
+The PageRank algorithm provides a score for each of the zones which are then used in our visualization as an overview of where a driver could head in NYC to start their day if they could start anywhere with the goal of providing the most income to the driver.
 
 The Random Walk algorithm is used to compare zones that are nearby the user's current zone to show where they might head to pick up a fare close by. It takes the current zone, the hours left in the driver's day, and how far they'd be willing to drive to a new zone as input.  It then finds all the neighboring zones within that willing to drive time and simulates 100 random walks for the remaining time (after accounting for the unproductive time spent traveling to the neighboring zone). The transition probability matrix used in the RandomWalk model is the same as that used for PageRank. It then calculates the average of those walks and returns that information to the user.
 
