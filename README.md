@@ -26,6 +26,8 @@ The Random Walk algorithm is used to compare zones that are nearby the user's cu
 
 **TaxiZone_Name_Borough.csv** - Contains each zones id, name, and the borough they're located in for the hover data in our visualization.
 
+**taxi_zones.csv** - GeoJSON data and neighborhood data.  Used in testing python files.  
+
 ## INSTALLATION
 
 If you would like to skip the installation, we've hosted the project in two places.  Simply head to: https://dva-warriors.azurewebsites.net/
@@ -78,13 +80,14 @@ If installing locally,
 2. In the command prompt type: PYTHON visualization.py
 3. Then simply head to http://127.0.0.1:8050/ in your favorite browser (Chrome Preferred) to view our visualization.  
 
+### Visualization Interaction
 To interact with the visualization simply choose which dataset you'd like to work with from the first set of dropdowns.  
 The PageRank algorithm will update automaticaly.  
 If you'd like to enter the RandomWalk algorithm, simply click on a zone, which reprsents where the cab driver is.  
 The reccomendations can be customized by the two time sliders above the map.  
 To return to pagerank mode, simply double click on another zone.  
 
-
+### Exploration and Testing code
 We have also included some other work we built while in the exploratory phase of this project.    
 
 If you run in the command prompt: python test_embedding.py, plots will be created in the root directory showing a 2d graph embedding of the top 10 drop off and pickup zones.  
