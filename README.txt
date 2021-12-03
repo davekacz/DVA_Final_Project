@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------
-# DESCRIPTION
+DESCRIPTION
 ---------------------------------------------------------------------------------------
 This package contains all the relevant code for our NYC Taxi Pickup Zone recommendation project.  We use both a PageRank algorithm
 and a RandomWalk algorithm to show NYC Taxi drivers the best place to pick up fares in the hopes they can make more 
@@ -13,7 +13,7 @@ neighboring zones within that willing to drive time and simulates 100 random wal
 spent traveling to the neighboring zone). The transition probability matrix used in the RandomWalk model is the same as that used for PageRank.
 It then calculates the average of those walks and returns that information to the user.
 
-## Main Files
+Main Files
 ---------------
 visualization.py - Contains all code relevant to our interactive visualization implemented using Dash/Plotly.
 
@@ -21,7 +21,7 @@ util.py - Contains code to run our PageRank algorithm and Random Walk algorithm 
 named Utility. This class contains methods for loading historical data into memory, building a graph and transition probability matrix, Pagerank, RandomWalk,
 and finding the best neighboring zones. All other code files reference this base class.
 
-## Test Files and Data Aggregation
+Test Files and Data Aggregation
 ---------------
 test_embedding.py - Script to generate 2D graph embeddings of the data using a kernel PCA approach. This is still experimental and not implemented in the visualization
 
@@ -30,7 +30,7 @@ in a 8 hr day based on 1000 RandoWalks when picking a zone at random vs. picking
 
 SourceDataPull.ipynb - Contains the code and SQL query we used to pull and aggregate the data from our PostgreSQL database.
 
-## Data Folder
+Data Folder
 ---------------
 TAXI_trips_XXXX.csv - Contains our aggregated NYC Taxi trip data for each pickup and drop-off zone.  As well as
 month, day or night field, the day of the week, average total fare, average trip time, and average time to make the trip.
@@ -44,7 +44,7 @@ TaxiZone_Name_Borough.csv - Contains each zones id, name, and the borough they'r
 taxi_zones.csv - GeoJSON data and neighborhood data.  Used in testing python files.  
 
 ---------------------------------------------------------------------------------------
-# INSTALLATION
+INSTALLATION
 ---------------------------------------------------------------------------------------
 If you would like to skip the installation, we've hosted the project in two places.  Simply head to: https://dva-warriors.azurewebsites.net/
 
@@ -87,7 +87,7 @@ Werkzeug==2.0.2
 zipp==3.6.0
 
 ---------------------------------------------------------------------------------------
-# EXECUTION
+EXECUTION
 ---------------------------------------------------------------------------------------
 Once again, we suggest you head to: https://dva-warriors.azurewebsites.net/ 
 or our backup site: https://dva-warriors-backup.azurewebsites.net/
@@ -98,7 +98,7 @@ If installing locally,
 2. In the command prompt type: PYTHON visualization.py
 3. Then simply head to http://127.0.0.1:8050/ in your favorite browser (Chrome Preferred) to view our visualization.  
 
-## Visualization Interaction
+Visualization Interaction
 --------------- 
 To interact with the visualization simply choose which dataset you'd like to work with from the first set of dropdowns.  
 The PageRank algorithm will update automaticaly.  
@@ -106,7 +106,7 @@ If you'd like to enter the RandomWalk algorithm, simply click on a zone, which r
 The reccomendations can be customized by the two time sliders above the map.  
 To return to pagerank mode, simply double click on another zone.  
 
-## Exploration and Testing code
+Exploration and Testing code
 --------------- 
 We have also included some other work we built while in the exploratory phase of this project.    
 
