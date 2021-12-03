@@ -416,8 +416,6 @@ def display_selected_data(selectedpoints, month_selection, year_selection, day_s
         #Return NA for no zone selected, and the mapbox, and the time selected
         #return location, fig, time_slider_driving_duration
         return location, fig
-    
-        #If a point is selected... returns zoomed in - need table of zone centers to zoom to
  
 if __name__ == '__main__':
     #Use this line if running locally
