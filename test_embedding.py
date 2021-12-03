@@ -6,10 +6,13 @@ import seaborn as sns; sns.set()
 from util import Utility, kernel_pca, graph_embedding
 plt.close('all')
 # Inputs
-ut = Utility(taxi = 'yellow', day_night = 'day', 
-             day_of_week = 'weekday')
+day_night = 'night'
+dow = 'weekend'
+ut = Utility(taxi = 'yellow', day_night = day_night, 
+             day_of_week = dow)
+# df = ut.top_neighbor(150, 3,2019, 1, 0.3)
 year = 2019
-month = 6
+month = 8
 top = 10
 embedding = 'kernelpca' # or 'laplacian'
 #%% Read in the data
@@ -68,9 +71,9 @@ fig, ax = ut.plot_graph(proj, adj_mx = A, rank = pickupscore,
                         node_ids = node_ids+1, 
                      id_to_name=id_to_zone, idx = idx, thumb_frac= 0.03)
 ax.grid(False)
-# ax.set_title('Top {0} Pickup zones by profitability for Taxi type = {1}, Month = {2}, Year={3}' \
-#              .format(top, taxi.upper(), month, year))
-# fig.savefig('PU_{4}_{0}_{1}_{2}_{3}.png'.format(taxi, month, year, rank, embedding),
-#             bbox_inches = 'tight')
+ax.set_title('''Graph embedding of top {0} dropoff zones (in blue) and pickup zones (in red) 
+             for the Month of {1}, in {2} during {3} of {4}'''.format(top, month, year, day_night, dow))
+fig.savefig('embedding_{0}_{1}_{2}_{3}.png'.format(month, year, day_night, dow),
+            bbox_inches = 'tight')
     
         

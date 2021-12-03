@@ -3,7 +3,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-#import seaborn as sns; sns.set()
+import seaborn as sns; sns.set()
 from scipy import sparse
 from matplotlib.collections import LineCollection
 from matplotlib.colors import ListedColormap
@@ -74,7 +74,7 @@ class Utility:
         # First add the nodes
         if isinstance(idx, pd.DataFrame):
             ax.scatter(proj[:, 0], proj[:, 1], s = rank*20000, c = label,
-                       cmap = ListedColormap(['red', 'blue']), marker='.')
+                       cmap = ListedColormap(['red', 'steelblue']), marker='.')
         else:
             ax.scatter(proj[:, 0], proj[:, 1], s = rank*10000, c = rank,
                        cmap = 'YlOrRd', marker='.')
@@ -324,7 +324,8 @@ class Utility:
             if zone in node_ids:
                 self.duration = time_remaining - neighbors.loc[zone, 'avg_trip_time']
                 total_amount = []
-                for experiment in range(50):
+                np.random.seed(42)
+                for experiment in range(100):     
                     try:
                         total_amount.append(self.random_walk(P, node_ids, trips, zone))
                     except:

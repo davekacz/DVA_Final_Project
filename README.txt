@@ -9,16 +9,21 @@ could head in NYC to start their day if they could start anywhere.
 
 The Random Walk algorithm is used to compare zones that are nearby the user's current zone to show where they might head to pick up a fare close by.
 It takes the current zone, the hours left in the driver's day, and how far they'd be willing to drive to a new zone as input.  It then finds all the
-neighboring zones within that willing to drive time and simulates 50 random walks within the time left in the drivers days from those zones using a
-steady-state probability distribution.  It then calculates the average of those walks and returns that information to the user.
+neighboring zones within that willing to drive time and simulates 100 random walks for the remaining time (after accounting for the unproductive time 
+spent traveling to the neighboring zone). The transition probability matrix used in the RandomWalk model is the same as that used for PageRank.
+It then calculates the average of those walks and returns that information to the user.
 
-visualization.py - Contains all code relevant to our interactive visualization.
+visualization.py - Contains all code relevant to our interactive visualization implemented using Dash/Plotly.
 
-util.py - Contains code to run our PageRank algorithm and Random Walk algorithm for the visualization.  It also contains...
+util.py - Contains code to run our PageRank algorithm and Random Walk algorithm for the visualization.  The core functionality is implemented in a class 
 
-test_embedding.py - Contains...
+named Utility. This class contains methods for loading historical data into memory, building a graph and transition probability matrix, Pagerank, RandomWalk,
+and finding the best neighboring zones. All other code files reference this base class.
 
-test_pagerank.py - Contains...
+test_embedding.py - Script to generate 2D graph embeddings of the data using a kernel PCA approach. This is still experimental and not implemented in the visualization
+
+test_pagerank.py - Script to evaluate the PageRank model versus a random selection of pickup zones. Generates plots comparing the average total amount a driver can make 
+in a 8 hr day based on 1000 RandoWalks when picking a zone at random vs. picking a top 10 zone as recommended by the PageRank model
 
 SourceDataPull.ipynb - Contains the code and SQL query we used to pull and aggregate the data from our PostgreSQL database.
 
@@ -47,9 +52,11 @@ To set up the environment locally:
 4. In the command prompt type: conda install --file requirements.txt
 5. If prompted to proceed, enter y (YES).
 
-
 The following libraries and versions will be installed to your enviorment.  
 pandas
+numpy
+seaborn
+scipy
 dash==1.19.0
 plotly==5.4.0
 plotly_express==0.4.1
@@ -84,25 +91,17 @@ If installing locally,
 2. In the command prompt type: PYTHON visualization.py
 3. Then simply head to http://127.0.0.1:8050/ in your favorite browser (Chrome Preferred) to view our visualization.  
 
-
-**********Notes for myself*********
-
-Piazza Post on scope of Readme:
-https://piazza.com/class/kqihppjwbhk3vf?cid=1865
-
-README.txt - a concise, short README.txt file, corresponding to the "user guide". This file should contain:
-
-DESCRIPTION - Describe the package in a few paragraphs
-INSTALLATION - How to install and setup your code
-EXECUTION - How to run a demo on your code
+To interact with the visualization simply choose which dataset you'd like to work with from the first set of dropdowns.  
+The PageRank algorithm will update automaticaly.  
+If you'd like to enter the RandomWalk algorithm, simply click on a zone, which reprsents where the cab driver is.  
+The reccomendations can be customized by the two time sliders above the map.  
+To return to pagerank mode, simply double click on another zone.  
 
 
-[Optional, but recommended] DEMO VIDEO - Include the URL of a 1-minute *unlisted* YouTube video in this txt file. 
-The video would show how to install and execute your system/tool/approach 
-(e.g, from typing the first command to compile, to system launching, and running some examples). 
-Feel free to speed up the video if needed (e.g., remove less relevant video segments). 
-This video is optional (i.e., submitting a video does not increase scores; not submitting one does not decrease scores). 
-However, we recommend teams to try and create such a video, 
-because making the video helps teams better think through what they may want to write in the README.txt, 
-and generally how they want to "sell" their work.
+We have also included some other work we built while in the exploratory phase of this project.    
 
+If you run in the command prompt: python test_embedding.py
+an image will be created in the root directory showing a 2d embedding of the top 10 drop off zones.  
+
+If you run in the command prompt: python test_pagerank.py
+an image will be created in the root directory showing a 2d embedding of the top 10 drop off zones.  

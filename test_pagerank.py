@@ -8,8 +8,8 @@ from util import Utility
 from datetime import date
 plt.close('all')
 taxi = 'yellow'
-day_night = 'day'
-dow = 'weekday'
+day_night = 'night'
+dow = 'weekend'
 ut = Utility(taxi = taxi, day_night = day_night, 
              day_of_week = dow, duration = 8,
              exclude_ids = None, nexp = 1000)
@@ -44,6 +44,8 @@ ax.set_title('''Random vs. Top {0} starting nodes from the current month
 ax.legend()
 fig.savefig('random_vs_pagerank_current_month_{0}_{1}.png'.format(day_night,
                                                                   dow), bbox_inches = 'tight')
+df.to_csv('random_vs_pagerank_current_month_{0}_{1}.csv'.format(day_night,
+                                                                  dow))
 #%% run the monthly predictions for the next month
 df = ut.monthly_pred(start, end, top)
 
@@ -68,6 +70,8 @@ ax.set_title('''Random vs. Top {0} starting nodes from the previous month
 ax.legend()
 fig.savefig('random_vs_pagerank_next_month_{0}_{1}.png'.format(day_night,
                                                                dow), bbox_inches = 'tight')
+df.to_csv('random_vs_pagerank_next_month_{0}_{1}.csv'.format(day_night,
+                                                               dow))
 #%% Compare the distributions of total amounts of random vs. pagerank starting nodes
 year = 2017
 month = 7

@@ -1,4 +1,7 @@
 pandas
+numpy
+seaborn
+scipy
 dash==1.19.0
 plotly==5.4.0
 plotly_express==0.4.1
