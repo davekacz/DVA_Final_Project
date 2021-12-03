@@ -42,7 +42,7 @@ To set up the environment locally:
 4. In the command prompt type: conda install --file requirements.txt
 5. If prompted to proceed, enter y (YES).
 
-The following libraries and versions will be installed to your enviorment.  
+The following libraries and versions will be installed to your enviorment and are located in requirements.txt.
 pandas
 numpy
 seaborn
