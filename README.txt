@@ -1,39 +1,29 @@
 ---------------------------------------------------------------------------------------
 DESCRIPTION
 ---------------------------------------------------------------------------------------
-This package contains all the relevant code for our NYC Taxi Pickup Zone recommendation project.  We use both a PageRank algorithm
-and a RandomWalk algorithm to show NYC Taxi drivers the best place to pick up fares in the hopes they can make more 
+This package contains all the relevant code for our NYC Taxi Pickup Zone recommendation project.  We use both a PageRank algorithm and a RandomWalk algorithm to show NYC Taxi drivers the best place to pick up fares in the hopes they can make more 
 
-The PageRank algorithm provides a score for each of the zones which are then used in our visualization as an overview of where a driver
-could head in NYC to start their day if they could start anywhere.
+The PageRank algorithm provides a score for each of the zones which are then used in our visualization as an overview of where a driver could head in NYC to start their day if they could start anywhere.
 
-The Random Walk algorithm is used to compare zones that are nearby the user's current zone to show where they might head to pick up a fare close by.
-It takes the current zone, the hours left in the driver's day, and how far they'd be willing to drive to a new zone as input.  It then finds all the
-neighboring zones within that willing to drive time and simulates 100 random walks for the remaining time (after accounting for the unproductive time 
-spent traveling to the neighboring zone). The transition probability matrix used in the RandomWalk model is the same as that used for PageRank.
-It then calculates the average of those walks and returns that information to the user.
+The Random Walk algorithm is used to compare zones that are nearby the user's current zone to show where they might head to pick up a fare close by. It takes the current zone, the hours left in the driver's day, and how far they'd be willing to drive to a new zone as input.  It then finds all the neighboring zones within that willing to drive time and simulates 100 random walks for the remaining time (after accounting for the unproductive time spent traveling to the neighboring zone). The transition probability matrix used in the RandomWalk model is the same as that used for PageRank. It then calculates the average of those walks and returns that information to the user.
 
 Main Files
 ---------------
 visualization.py - Contains all code relevant to our interactive visualization implemented using Dash/Plotly.
 
-util.py - Contains code to run our PageRank algorithm and Random Walk algorithm for the visualization.  The core functionality is implemented in a class 
-named Utility. This class contains methods for loading historical data into memory, building a graph and transition probability matrix, Pagerank, RandomWalk,
-and finding the best neighboring zones. All other code files reference this base class.
+util.py - Contains code to run our PageRank algorithm and Random Walk algorithm for the visualization.  The core functionality is implemented in a class named Utility. This class contains methods for loading historical data into memory, building a graph and transition probability matrix, Pagerank, RandomWalk, and finding the best neighboring zones. All other code files reference this base class.
 
 Test Files and Data Aggregation
 ---------------
 test_embedding.py - Script to generate 2D graph embeddings of the data using a kernel PCA approach. This is still experimental and not implemented in the visualization
 
-test_pagerank.py - Script to evaluate the PageRank model versus a random selection of pickup zones. Generates plots comparing the average total amount a driver can make 
-in a 8 hr day based on 1000 RandoWalks when picking a zone at random vs. picking a top 10 zone as recommended by the PageRank model
+test_pagerank.py - Script to evaluate the PageRank model versus a random selection of pickup zones. Generates plots comparing the average total amount a driver can make in a 8 hr day based on 1000 RandoWalks when picking a zone at random vs. picking a top 10 zone as recommended by the PageRank model
 
 SourceDataPull.ipynb - Contains the code and SQL query we used to pull and aggregate the data from our PostgreSQL database.
 
 Data Folder
 ---------------
-TAXI_trips_XXXX.csv - Contains our aggregated NYC Taxi trip data for each pickup and drop-off zone.  As well as
-month, day or night field, the day of the week, average total fare, average trip time, and average time to make the trip.
+TAXI_trips_XXXX.csv - Contains our aggregated NYC Taxi trip data for each pickup and drop-off zone.  As well as month, day or night field, the day of the week, average total fare, average trip time, and average time to make the trip.
 
 centers.csv - Contains the longitude and latitude center for each zone to be used in the visualization for markers.
 
